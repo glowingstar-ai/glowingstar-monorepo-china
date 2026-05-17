@@ -153,6 +153,7 @@ export default function UsfDefenseExperience({
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [defenseError, setDefenseError] = useState<string | null>(null);
   const [completedAt, setCompletedAt] = useState<string | null>(null);
+  const [persistenceEnabled, setPersistenceEnabled] = useState<boolean | null>(null);
   const answerDraftRef = useRef("");
   const timedOutRoundRef = useRef<string | null>(null);
 
@@ -308,7 +309,8 @@ export default function UsfDefenseExperience({
         throw new Error("USF snapshot request failed");
       }
 
-      await response.json() as SnapshotResponse;
+      const payload = (await response.json()) as SnapshotResponse;
+      setPersistenceEnabled(payload.persistence_enabled);
     } catch (error) {
       console.error("Unable to persist USF snapshot", error);
     } finally {
@@ -336,6 +338,7 @@ export default function UsfDefenseExperience({
       }
 
       const payload = (await response.json()) as SessionStartResponse;
+      setPersistenceEnabled(payload.persistence_enabled);
       setStudentId(trimmedStudentId);
       setSessionId(payload.session_id);
       setStage("module");
@@ -417,6 +420,7 @@ export default function UsfDefenseExperience({
       }
 
       const payload = (await response.json()) as QuestionResponse;
+      setPersistenceEnabled(payload.persistence_enabled);
       setCurrentRoundIndex(payload.round_index);
       setCurrentQuestion(payload.question);
       await postEvent("defense_question_generated", {
@@ -490,7 +494,8 @@ export default function UsfDefenseExperience({
         throw new Error("USF defense turn save failed");
       }
 
-      await response.json() as TurnResponse;
+      const payload = (await response.json()) as TurnResponse;
+      setPersistenceEnabled(payload.persistence_enabled);
       const nextTurns = [
         ...turns,
         {
@@ -537,6 +542,7 @@ export default function UsfDefenseExperience({
     setSecondsRemaining(ROUND_SECONDS);
     setDefenseError(null);
     setCompletedAt(null);
+    setPersistenceEnabled(null);
     answerDraftRef.current = "";
     timedOutRoundRef.current = null;
   };
@@ -578,7 +584,18 @@ export default function UsfDefenseExperience({
           {studentId ? (
             <p className="mt-4 text-sm text-[#6B665E]">
               Student ID: <span className="font-semibold text-[#171717]">{studentId}</span>
-              {isSavingSnapshot ? " · Saving..." : " · Saved as you work"}
+              {persistenceEnabled === false ? (
+                <span className="font-semibold text-[#B42318]">
+                  {" "}
+                  · Persistence unavailable - this session is not being saved
+                </span>
+              ) : isSavingSnapshot ? (
+                " · Saving..."
+              ) : persistenceEnabled ? (
+                " · Saved as you work"
+              ) : (
+                " · Checking save status..."
+              )}
             </p>
           ) : null}
         </header>
@@ -757,8 +774,10 @@ export default function UsfDefenseExperience({
             <p className="text-sm font-semibold text-[#256C42]">Complete</p>
             <h2 className="mt-2 text-3xl font-bold">Congratulations!</h2>
             <p className="mt-3 text-[#5F5D57]">
-              Your five defense rounds for Module {selectedModule.moduleNumber}: {selectedModule.title} have been saved.
-              You can return to the module list to complete another module.
+              {persistenceEnabled === false
+                ? `Your five defense rounds for Module ${selectedModule.moduleNumber}: ${selectedModule.title} are complete, but persistence is unavailable so they were not saved.`
+                : `Your five defense rounds for Module ${selectedModule.moduleNumber}: ${selectedModule.title} have been saved.`}
+              {" "}You can return to the module list to complete another module.
             </p>
             <div className="mt-6">
               <PrimaryButton onClick={returnToModules}>
