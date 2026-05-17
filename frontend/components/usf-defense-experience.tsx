@@ -639,13 +639,13 @@ export default function UsfDefenseExperience({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-[#8A5E2A]">
-                      Module {moduleItem.moduleNumber} · {moduleItem.week}
+                      Module {moduleItem.moduleNumber}
                     </p>
                     <h2 className="mt-1 text-xl font-bold">{moduleItem.title}</h2>
                   </div>
-                  {!moduleItem.available ? (
+                  {moduleItem.learningObjectives.length === 0 ? (
                     <span className="rounded-full bg-[#F4E8DE] px-3 py-1 text-xs font-semibold text-[#9B4A1B]">
-                      Needs objectives
+                      No reflection needed
                     </span>
                   ) : null}
                 </div>
@@ -656,7 +656,9 @@ export default function UsfDefenseExperience({
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-4 text-sm text-[#5F5D57]">{moduleItem.notes}</p>
+                  <p className="mt-4 text-sm text-[#5F5D57]">
+                    No written reflection is needed for this module.
+                  </p>
                 )}
               </button>
             ))}
