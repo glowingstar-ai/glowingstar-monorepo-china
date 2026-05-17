@@ -320,7 +320,7 @@ export default function UsfDefenseExperience({
 
   const startSession = async (): Promise<void> => {
     if (!trimmedStudentId) {
-      setSessionError("Please enter your student ID.");
+      setSessionError("Please enter your USF ID (U#).");
       return;
     }
 
@@ -583,7 +583,7 @@ export default function UsfDefenseExperience({
           </div>
           {studentId ? (
             <p className="mt-4 text-sm text-[#6B665E]">
-              Student ID: <span className="font-semibold text-[#171717]">{studentId}</span>
+              USF ID (U#): <span className="font-semibold text-[#171717]">{studentId}</span>
               {persistenceEnabled === false ? (
                 <span className="font-semibold text-[#B42318]">
                   {" "}
@@ -603,7 +603,7 @@ export default function UsfDefenseExperience({
         {stage === "student-id" ? (
           <section className="mt-6 rounded-[2rem] border border-[#E4D8C8] bg-white p-6 shadow-[0_18px_60px_rgba(52,42,28,0.08)]">
             <label className="text-sm font-semibold text-[#3A332A]" htmlFor="student-id">
-              Enter your student ID
+              Enter your USF ID (U#)
             </label>
             <div className="mt-3 flex flex-col gap-3 sm:flex-row">
               <input
@@ -611,7 +611,7 @@ export default function UsfDefenseExperience({
                 value={studentIdDraft}
                 onChange={(event) => setStudentIdDraft(event.target.value)}
                 className="min-h-12 flex-1 rounded-2xl border border-[#D8D2C7] bg-white px-4 text-base text-[#171717] outline-none [color-scheme:light] placeholder:text-[#8A8178] focus:border-[#171717]"
-                placeholder="Student ID"
+                placeholder="USF ID (U#)"
               />
               <PrimaryButton disabled={isStartingSession} onClick={startSession}>
                 {isStartingSession ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
