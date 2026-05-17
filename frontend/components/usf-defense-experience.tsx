@@ -271,10 +271,20 @@ export default function UsfDefenseExperience({
   const saveSnapshot = async (
     nextStage: Stage,
     moduleContext: UsfModule | null = selectedModule,
+    overrides: {
+      completedAt?: string | null;
+      turnContext?: DefenseTurn[];
+    } = {},
   ): Promise<void> => {
     if (!sessionId || !studentId) {
       return;
     }
+
+    const snapshotTurns = overrides.turnContext ?? turns;
+    const snapshotCompletedAt =
+      Object.prototype.hasOwnProperty.call(overrides, "completedAt")
+        ? overrides.completedAt
+        : completedAt;
 
     setIsSavingSnapshot(true);
     try {
@@ -293,15 +303,15 @@ export default function UsfDefenseExperience({
           learned_response: learnedResponse,
           remaining_questions_response: remainingQuestionsResponse,
           current_round_index: currentRoundIndex,
-          completed_round_count: turns.length,
-          defense_turns: turns.map((turn) => ({
+          completed_round_count: snapshotTurns.length,
+          defense_turns: snapshotTurns.map((turn) => ({
             round_index: turn.roundIndex,
             question: turn.question,
             answer_text: turn.answerText,
             audio_transcript: null,
             answered_at: turn.answeredAt,
           })),
-          completed_at: completedAt,
+          completed_at: snapshotCompletedAt,
         }),
       });
 
@@ -517,7 +527,10 @@ export default function UsfDefenseExperience({
         setCompletedAt(finishedAt);
         setStage("complete");
         setCurrentQuestion("");
-        await saveSnapshot("complete");
+        await saveSnapshot("complete", selectedModule, {
+          completedAt: finishedAt,
+          turnContext: nextTurns,
+        });
         return;
       }
 
@@ -530,7 +543,9 @@ export default function UsfDefenseExperience({
     }
   };
 
-  const returnToModules = (): void => {
+  const returnToModules = async (): Promise<void> => {
+    const currentStudentId = studentId;
+    setSessionId("");
     setStage("module");
     setSelectedModuleId("");
     setLearnedResponse("");
@@ -545,6 +560,36 @@ export default function UsfDefenseExperience({
     setPersistenceEnabled(null);
     answerDraftRef.current = "";
     timedOutRoundRef.current = null;
+
+    if (!currentStudentId) {
+      setStage("student-id");
+      return;
+    }
+
+    setIsStartingSession(true);
+    try {
+      const response = await fetch(`${API_BASE}/usf/session/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ student_id: currentStudentId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to start a new USF session");
+      }
+
+      const payload = (await response.json()) as SessionStartResponse;
+      setPersistenceEnabled(payload.persistence_enabled);
+      setSessionId(payload.session_id);
+    } catch (error) {
+      console.error(error);
+      setStudentId("");
+      setStudentIdDraft(currentStudentId);
+      setStage("student-id");
+      setSessionError("We could not start a new module attempt. Please try again.");
+    } finally {
+      setIsStartingSession(false);
+    }
   };
 
   return (

@@ -9,7 +9,6 @@ import {
   MessageSquareText,
   RefreshCw,
   Search,
-  Star,
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -148,15 +147,6 @@ function formatPercent(value: number, total: number): string {
   return `${Math.round((value / total) * 100)}%`;
 }
 
-function averageRating(turns: Array<Pick<UsfResearchArtifactRecord, "self_rating">>): string {
-  const ratings = turns
-    .map((turn) => turn.self_rating)
-    .filter((rating): rating is number => typeof rating === "number");
-  if (ratings.length === 0) return "N/A";
-  const average = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
-  return average.toFixed(1);
-}
-
 function JsonBlock({ value }: Readonly<{ value: unknown }>): JSX.Element {
   return (
     <pre className="mt-3 max-h-72 overflow-auto rounded-2xl bg-[#171717] p-4 text-xs leading-5 text-white">
@@ -259,6 +249,81 @@ export default function UsfResearchDashboard(): JSX.Element {
     });
   }, [overview, query]);
 
+  const groupedStudents = useMemo(() => {
+    type ModuleGroup = {
+      moduleKey: string;
+      moduleNumber?: number | null;
+      moduleTopic: string;
+      completedAttemptCount: number;
+      sessions: UsfResearchSessionSummary[];
+    };
+    type StudentGroup = {
+      studentId: string;
+      lastSeenAt?: string | null;
+      modules: ModuleGroup[];
+    };
+
+    const studentsById = new Map<
+      string,
+      {
+        studentId: string;
+        lastSeenAt?: string | null;
+        modulesByKey: Map<string, ModuleGroup>;
+      }
+    >();
+
+    for (const session of sessions) {
+      const studentId = session.student_id ?? "Unknown student";
+      const student = studentsById.get(studentId) ?? {
+        studentId,
+        lastSeenAt: null,
+        modulesByKey: new Map<string, ModuleGroup>(),
+      };
+      const lastSeenAt = session.last_seen_at ?? session.started_at;
+      if (lastSeenAt && (!student.lastSeenAt || lastSeenAt > student.lastSeenAt)) {
+        student.lastSeenAt = lastSeenAt;
+      }
+
+      const moduleKey = session.module_id ?? session.module_topic ?? "unknown-module";
+      const moduleGroup = student.modulesByKey.get(moduleKey) ?? {
+        moduleKey,
+        moduleNumber: session.module_number,
+        moduleTopic: session.module_topic ?? "No module selected",
+        completedAttemptCount: 0,
+        sessions: [],
+      };
+      moduleGroup.sessions.push(session);
+      if (session.completed_at) {
+        moduleGroup.completedAttemptCount += 1;
+      }
+      student.modulesByKey.set(moduleKey, moduleGroup);
+      studentsById.set(studentId, student);
+    }
+
+    return Array.from(studentsById.values())
+      .map<StudentGroup>((student) => ({
+        studentId: student.studentId,
+        lastSeenAt: student.lastSeenAt,
+        modules: Array.from(student.modulesByKey.values())
+          .map((moduleGroup) => ({
+            ...moduleGroup,
+            sessions: moduleGroup.sessions.sort(
+              (first, second) =>
+                (second.last_seen_at ?? second.started_at ?? "").localeCompare(
+                  first.last_seen_at ?? first.started_at ?? "",
+                ),
+            ),
+          }))
+          .sort((first, second) => {
+            const firstNumber = first.moduleNumber ?? Number.MAX_SAFE_INTEGER;
+            const secondNumber = second.moduleNumber ?? Number.MAX_SAFE_INTEGER;
+            if (firstNumber !== secondNumber) return firstNumber - secondNumber;
+            return first.moduleTopic.localeCompare(second.moduleTopic);
+          }),
+      }))
+      .sort((first, second) => (second.lastSeenAt ?? "").localeCompare(first.lastSeenAt ?? ""));
+  }, [sessions]);
+
   const selectedSession = detail?.session;
   const completedSessions = sessions.filter((session) => session.completed_at).length;
   const totalErrors = sessions.reduce((sum, session) => sum + session.error_count, 0);
@@ -278,7 +343,7 @@ export default function UsfResearchDashboard(): JSX.Element {
               </h1>
               <p className="mt-3 max-w-3xl text-base leading-7 text-[#5F5D57]">
                 Review collected student IDs, module choices, reflections, generated defense
-                questions, transcripts, answers, self-ratings, events, and errors.
+                questions, answers, events, and errors.
               </p>
             </div>
             <button
@@ -314,7 +379,7 @@ export default function UsfResearchDashboard(): JSX.Element {
           />
           <StatCard
             icon={<MessageSquareText className="h-5 w-5" />}
-            label="Defense Turns"
+            label="Defense Answers"
             value={totalTurns}
           />
           <StatCard
@@ -344,43 +409,87 @@ export default function UsfResearchDashboard(): JSX.Element {
                 </div>
               ) : null}
 
-              {sessions.map((session) => (
-                <button
-                  key={session.session_id}
-                  onClick={() => setSelectedSessionId(session.session_id)}
-                  className={cn(
-                    "w-full rounded-2xl border p-4 text-left transition hover:border-[#171717]",
-                    selectedSessionId === session.session_id
-                      ? "border-[#171717] bg-[#FBF8F2]"
-                      : "border-[#E4D8C8] bg-white",
-                  )}
+              {!isLoadingOverview && sessions.length === 0 ? (
+                <p className="text-sm text-[#5F5D57]">No sessions match this search.</p>
+              ) : null}
+
+              {groupedStudents.map((student) => (
+                <section
+                  key={student.studentId}
+                  className="rounded-3xl border border-[#E4D8C8] bg-white p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold">{session.student_id ?? "Unknown student"}</p>
-                      <p className="mt-1 text-sm text-[#5F5D57]">
-                        {session.module_topic ?? "No module selected"}
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8A5E2A]">
+                        Student
                       </p>
+                      <h2 className="mt-1 font-bold">{student.studentId}</h2>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-[#8A867E]" />
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-[#F6F1E8] px-2.5 py-1">
-                      {session.stage ?? "unknown"}
+                    <span className="rounded-full bg-[#F6F1E8] px-2.5 py-1 text-xs font-semibold text-[#6B665E]">
+                      {student.modules.length} modules
                     </span>
-                    <span className="rounded-full bg-[#F6F1E8] px-2.5 py-1">
-                      {session.completed_round_count}/5 rounds
-                    </span>
-                    {session.error_count > 0 ? (
-                      <span className="rounded-full bg-[#FCEDEC] px-2.5 py-1 text-[#A43D36]">
-                        {session.error_count} errors
-                      </span>
-                    ) : null}
                   </div>
-                  <p className="mt-3 text-xs text-[#6B665E]">
-                    Last seen {formatDateTime(session.last_seen_at)}
-                  </p>
-                </button>
+
+                  <div className="mt-4 space-y-4">
+                    {student.modules.map((moduleGroup) => (
+                      <section key={moduleGroup.moduleKey} className="rounded-2xl bg-[#FBF8F2] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-semibold text-[#8A5E2A]">
+                              {moduleGroup.moduleNumber
+                                ? `Module ${moduleGroup.moduleNumber}`
+                                : "Module"}
+                            </p>
+                            <h3 className="mt-1 text-sm font-bold">{moduleGroup.moduleTopic}</h3>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#6B665E]">
+                            {moduleGroup.completedAttemptCount}/{moduleGroup.sessions.length} complete
+                          </span>
+                        </div>
+
+                        <div className="mt-3 space-y-2">
+                          {moduleGroup.sessions.map((session, index) => (
+                            <button
+                              key={session.session_id}
+                              onClick={() => setSelectedSessionId(session.session_id)}
+                              className={cn(
+                                "w-full rounded-2xl border p-3 text-left transition hover:border-[#171717]",
+                                selectedSessionId === session.session_id
+                                  ? "border-[#171717] bg-white"
+                                  : "border-[#E4D8C8] bg-[#FFFCF7]",
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <p className="text-sm font-semibold">
+                                    Attempt {moduleGroup.sessions.length - index}
+                                  </p>
+                                  <p className="mt-1 text-xs text-[#6B665E]">
+                                    Last seen {formatDateTime(session.last_seen_at)}
+                                  </p>
+                                </div>
+                                <ChevronRight className="h-4 w-4 text-[#8A867E]" />
+                              </div>
+                              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                                <span className="rounded-full bg-[#F6F1E8] px-2.5 py-1">
+                                  {session.completed_at ? "complete" : session.stage ?? "unknown"}
+                                </span>
+                                <span className="rounded-full bg-[#F6F1E8] px-2.5 py-1">
+                                  {session.completed_round_count}/5 rounds
+                                </span>
+                                {session.error_count > 0 ? (
+                                  <span className="rounded-full bg-[#FCEDEC] px-2.5 py-1 text-[#A43D36]">
+                                    {session.error_count} errors
+                                  </span>
+                                ) : null}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </aside>
@@ -416,7 +525,6 @@ export default function UsfResearchDashboard(): JSX.Element {
                     </span>
                     <span>Completed {formatDateTime(selectedSession.completed_at)}</span>
                     <span>Rounds {selectedSession.completed_round_count}/5</span>
-                    <span>Avg rating {averageRating(detail?.defense_turns ?? [])}</span>
                   </div>
                 </div>
 
@@ -436,37 +544,27 @@ export default function UsfResearchDashboard(): JSX.Element {
                 </div>
 
                 <div className="mt-6">
-                  <h3 className="text-lg font-bold">Defense Turns</h3>
+                  <h3 className="text-lg font-bold">Defense Answers</h3>
                   <div className="mt-3 space-y-4">
                     {(detail?.defense_turns ?? []).length === 0 ? (
-                      <p className="text-sm text-[#5F5D57]">No defense turns saved yet.</p>
+                      <p className="text-sm text-[#5F5D57]">No defense answers saved yet.</p>
                     ) : (
                       detail?.defense_turns.map((turn) => (
                         <article key={turn.item_key} className="rounded-3xl border border-[#E4D8C8] p-5">
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <p className="font-semibold">Round {(turn.round_index ?? 0) + 1}</p>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF4D8] px-3 py-1 text-sm font-semibold text-[#8A5E2A]">
-                              <Star className="h-4 w-4" />
-                              {turn.self_rating ? `${turn.self_rating}/10` : "No rating"}
-                            </span>
                           </div>
                           <p className="mt-3 font-semibold">{turn.question}</p>
                           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#5F5D57]">
                             {turn.answer_text}
                           </p>
-                          {turn.audio_transcript ? (
-                            <div className="mt-3 rounded-2xl bg-[#F6F1E8] p-3 text-sm text-[#5F5D57]">
-                              <span className="font-semibold text-[#171717]">Transcript: </span>
-                              {turn.audio_transcript}
-                            </div>
-                          ) : null}
                         </article>
                       ))
                     )}
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-4 xl:grid-cols-2">
+                <div className="mt-6">
                   <DetailList
                     title="Generated Questions"
                     items={detail?.generated_questions ?? []}
@@ -477,33 +575,6 @@ export default function UsfResearchDashboard(): JSX.Element {
                         <p className="mt-2 text-xs text-[#6B665E]">
                           {item.model ?? "unknown model"} · {formatDateTime(item.created_at)}
                         </p>
-                      </>
-                    )}
-                  />
-                  <DetailList
-                    title="Transcripts"
-                    items={detail?.transcripts ?? []}
-                    render={(item) => (
-                      <>
-                        <p className="font-semibold">Round {(item.round_index ?? 0) + 1}</p>
-                        <p className="mt-2 text-sm leading-6 text-[#5F5D57]">
-                          {item.transcript || "No transcript text."}
-                        </p>
-                        {item.audio_url ? (
-                          <a
-                            className="mt-3 inline-flex text-sm font-semibold text-[#8A5E2A] underline"
-                            href={item.audio_url}
-                            rel="noreferrer"
-                            target="_blank"
-                          >
-                            Open saved recording
-                          </a>
-                        ) : null}
-                        {item.audio_key ? (
-                          <p className="mt-2 break-all text-xs text-[#6B665E]">
-                            S3: {item.audio_bucket}/{item.audio_key}
-                          </p>
-                        ) : null}
                       </>
                     )}
                   />
