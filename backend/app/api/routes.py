@@ -26,6 +26,8 @@ from app.api.dependencies import (
     get_saintpaul_persistence,
     get_settings,
     get_tutor_service,
+    get_usf_defense_service,
+    get_usf_persistence,
     get_vision_analyzer,
 )
 from app.core.config import Settings
@@ -74,6 +76,23 @@ from app.schemas.tutor import (
     TutorQuizRequest,
     TutorQuizResponse,
 )
+from app.schemas.usf import (
+    UsfDefenseQuestionRequest,
+    UsfDefenseQuestionResponse,
+    UsfDefenseTurnRequest,
+    UsfDefenseTurnResponse,
+    UsfErrorRecord,
+    UsfEventRequest,
+    UsfEventResponse,
+    UsfResearchOverviewResponse,
+    UsfResearchSessionDetailResponse,
+    UsfSessionSnapshotRequest,
+    UsfSessionSnapshotResponse,
+    UsfSessionStartRequest,
+    UsfSessionStartResponse,
+    UsfTranscriptionRequest,
+    UsfTranscriptionResponse,
+)
 from app.services.auth import Auth0Client, Auth0ClientError
 from app.services.emotion import EmotionAnalyzer
 from app.services.generative_ui import (
@@ -83,7 +102,7 @@ from app.services.generative_ui import (
 )
 from app.services.journal import JournalCoach, JournalCoachError
 from app.services.note import NoteAnnotator, NoteAnnotationError
-from app.services.transcription import AudioTranscriber
+from app.services.transcription import AudioTranscriber, AudioTranscriptionError
 from app.services.payment import StripePaymentError, StripePaymentService
 from app.services.realtime import RealtimeSessionClient, RealtimeSessionError
 from app.services.research import ResearchDiscoveryService
@@ -93,6 +112,8 @@ from app.services.saintpaul_persistence import (
 )
 # from app.services.storage import S3AudioStorage, StorageServiceError  # Commented out AWS S3 for now
 from app.services.tutor import TutorModeService, TutorServiceUnavailableError
+from app.services.usf_defense import UsfDefenseService, UsfDefenseServiceError
+from app.services.usf_persistence import UsfPersistenceError, UsfPersistenceService
 from app.services.vision import (
     VisionAnalysisError,
     VisionAnalyzer,
@@ -860,6 +881,310 @@ async def get_saintpaul_research_session_detail(
     return SaintPaulResearchSessionDetailResponse.model_validate(payload)
 
 
+@router.post(
+    "/usf/session/start",
+    response_model=UsfSessionStartResponse,
+    tags=["usf"],
+)
+async def create_usf_session(
+    payload: UsfSessionStartRequest,
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfSessionStartResponse:
+    """Create a new persisted USF defense session."""
+
+    try:
+        created = persistence.create_session(payload)
+    except UsfPersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfSessionStartResponse(
+        session_id=created.session_id,
+        started_at=created.started_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/usf/session/snapshot",
+    response_model=UsfSessionSnapshotResponse,
+    tags=["usf"],
+)
+async def save_usf_session_snapshot(
+    payload: UsfSessionSnapshotRequest,
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfSessionSnapshotResponse:
+    """Persist the latest recoverable USF defense session state."""
+
+    try:
+        saved_at = persistence.save_snapshot(payload)
+    except UsfPersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfSessionSnapshotResponse(
+        saved_at=saved_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/usf/session/event",
+    response_model=UsfEventResponse,
+    tags=["usf"],
+)
+async def append_usf_event(
+    payload: UsfEventRequest,
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfEventResponse:
+    """Append a USF workflow event."""
+
+    try:
+        event_id, recorded_at = persistence.append_event(payload)
+    except UsfPersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfEventResponse(
+        event_id=event_id,
+        recorded_at=recorded_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.get(
+    "/usf/research/overview",
+    response_model=UsfResearchOverviewResponse,
+    tags=["usf"],
+)
+async def get_usf_research_overview(
+    limit: int | None = Query(
+        None,
+        ge=1,
+        le=1000,
+        description="Optional maximum number of latest USF sessions to include.",
+    ),
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfResearchOverviewResponse:
+    """Return grouped USF student/session activity for internal review."""
+
+    try:
+        payload = persistence.get_research_overview(limit=limit)
+    except UsfPersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfResearchOverviewResponse.model_validate(payload)
+
+
+@router.get(
+    "/usf/research/session/{session_id}",
+    response_model=UsfResearchSessionDetailResponse,
+    tags=["usf"],
+)
+async def get_usf_research_session_detail(
+    session_id: str,
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfResearchSessionDetailResponse:
+    """Return the full persisted activity stream for one USF session."""
+
+    try:
+        payload = persistence.get_session_research_detail(session_id)
+    except UsfPersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    if payload.get("session") is None:
+        raise HTTPException(status_code=404, detail="USF session not found")
+
+    return UsfResearchSessionDetailResponse.model_validate(payload)
+
+
+@router.post(
+    "/usf/defense/question",
+    response_model=UsfDefenseQuestionResponse,
+    tags=["usf"],
+)
+async def create_usf_defense_question(
+    payload: UsfDefenseQuestionRequest,
+    defense_service: UsfDefenseService = Depends(get_usf_defense_service),
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfDefenseQuestionResponse:
+    """Generate and persist one USF defense follow-up question."""
+
+    try:
+        generated = await defense_service.generate_question(payload)
+    except UsfDefenseServiceError as exc:
+        _record_usf_error_safely(
+            persistence,
+            UsfErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_question",
+                error_scope="backend",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+                metadata={
+                    "module_id": payload.module_id,
+                    "module_topic": payload.module_topic,
+                },
+            ),
+        )
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    try:
+        persistence.persist_generated_question(
+            payload=payload,
+            question=generated.question,
+            model=generated.model,
+            prompt=generated.prompt,
+            generated_at=generated.generated_at,
+        )
+    except UsfPersistenceError as exc:
+        _record_usf_error_safely(
+            persistence,
+            UsfErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_question_persist",
+                error_scope="storage",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfDefenseQuestionResponse(
+        model=generated.model,
+        round_index=payload.round_index,
+        question=generated.question,
+        generated_at=generated.generated_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/usf/defense/transcribe",
+    response_model=UsfTranscriptionResponse,
+    tags=["usf"],
+)
+async def transcribe_usf_defense_audio(
+    payload: UsfTranscriptionRequest,
+    transcriber: AudioTranscriber = Depends(get_audio_transcriber),
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfTranscriptionResponse:
+    """Transcribe and persist a USF defense audio answer."""
+
+    try:
+        audio_bytes = base64.b64decode(payload.audio_base64, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        _record_usf_error_safely(
+            persistence,
+            UsfErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_transcribe",
+                error_scope="client",
+                error_message="Invalid base64-encoded audio clip",
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=400, detail="Invalid base64-encoded audio clip") from exc
+
+    try:
+        transcription = await transcriber.transcribe(
+            audio_bytes,
+            payload.audio_mime_type,
+        )
+    except AudioTranscriptionError as exc:
+        _record_usf_error_safely(
+            persistence,
+            UsfErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_transcribe",
+                error_scope="backend",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    try:
+        recording = (
+            persistence.upload_recording(
+                payload=payload,
+                audio_bytes=audio_bytes,
+            )
+            if payload.persist_audio
+            else None
+        )
+        saved_at = persistence.persist_transcription(
+            payload=payload,
+            transcript=transcription.text,
+            recording=recording,
+        )
+    except UsfPersistenceError as exc:
+        _record_usf_error_safely(
+            persistence,
+            UsfErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_transcript_persist",
+                error_scope="storage",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfTranscriptionResponse(
+        text=transcription.text,
+        saved_at=saved_at,
+        persistence_enabled=persistence.enabled,
+        audio_bucket=recording.bucket if recording else None,
+        audio_key=recording.key if recording else None,
+        audio_url=recording.url if recording else None,
+        audio_content_type=recording.content_type if recording else None,
+        audio_size_bytes=recording.size_bytes if recording else None,
+    )
+
+
+@router.post(
+    "/usf/defense/turn",
+    response_model=UsfDefenseTurnResponse,
+    tags=["usf"],
+)
+async def save_usf_defense_turn(
+    payload: UsfDefenseTurnRequest,
+    persistence: UsfPersistenceService = Depends(get_usf_persistence),
+) -> UsfDefenseTurnResponse:
+    """Persist a completed USF defense answer and self-rating."""
+
+    try:
+        saved_at, completed_round_count = persistence.persist_defense_turn(payload)
+    except UsfPersistenceError as exc:
+        _record_usf_error_safely(
+            persistence,
+            UsfErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_turn_persist",
+                error_scope="storage",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return UsfDefenseTurnResponse(
+        saved_at=saved_at,
+        persistence_enabled=persistence.enabled,
+        completed_round_count=completed_round_count,
+    )
+
+
 @router.post("/tutor/mode", response_model=TutorModeResponse, tags=["tutor"])
 async def create_tutor_mode_plan(
     payload: TutorModeRequest,
@@ -1098,6 +1423,16 @@ async def create_tutor_quiz(
             except SaintPaulPersistenceError:
                 pass
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+def _record_usf_error_safely(
+    persistence: UsfPersistenceService,
+    payload: UsfErrorRecord,
+) -> None:
+    try:
+        persistence.record_error(payload)
+    except UsfPersistenceError:
+        pass
 
 
 def _encode_event(payload: dict[str, object]) -> str:

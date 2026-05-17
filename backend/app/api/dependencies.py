@@ -19,6 +19,8 @@ from app.services.saintpaul_persistence import (
 )
 from app.services.storage import S3AudioStorage, StorageServiceError
 from app.services.tutor import TutorModeService
+from app.services.usf_defense import UsfDefenseService
+from app.services.usf_persistence import UsfPersistenceError, UsfPersistenceService
 from app.services.vision import VisionAnalyzer
 
 
@@ -215,6 +217,24 @@ def get_tutor_service() -> TutorModeService:
 
 
 @lru_cache
+def _get_usf_defense_service() -> UsfDefenseService:
+    """Return a singleton USF defense service configured from settings."""
+
+    settings = _get_settings()
+    return UsfDefenseService(
+        api_key=settings.openai_api_key,
+        base_url=settings.openai_api_base_url,
+        model=settings.openai_usf_defense_model,
+    )
+
+
+def get_usf_defense_service() -> UsfDefenseService:
+    """FastAPI dependency wrapper around the USF defense service."""
+
+    return _get_usf_defense_service()
+
+
+@lru_cache
 def _get_saintpaul_persistence() -> SaintPaulPersistenceService:
     settings = _get_settings()
     return SaintPaulPersistenceService(settings)
@@ -226,6 +246,21 @@ def get_saintpaul_persistence() -> SaintPaulPersistenceService:
     try:
         return _get_saintpaul_persistence()
     except SaintPaulPersistenceError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@lru_cache
+def _get_usf_persistence() -> UsfPersistenceService:
+    settings = _get_settings()
+    return UsfPersistenceService(settings)
+
+
+def get_usf_persistence() -> UsfPersistenceService:
+    """Return the configured USF persistence service."""
+
+    try:
+        return _get_usf_persistence()
+    except UsfPersistenceError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 

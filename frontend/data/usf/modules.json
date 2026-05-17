@@ -1,0 +1,208 @@
+[
+  {
+    "id": "module-1",
+    "moduleNumber": 1,
+    "title": "Introduction to Digital Identity",
+    "week": "May 18-24",
+    "available": true,
+    "learningObjectives": [
+      "Explain the concept of \"context collapse\" (also referred to as \"collapsed context\").",
+      "Introduce yourself to the rest of the class using an online discussion board."
+    ],
+    "assessments": [
+      "Did You Read This? Quiz",
+      "Introduction Discussion"
+    ]
+  },
+  {
+    "id": "module-2",
+    "moduleNumber": 2,
+    "title": "Philosophical Perspectives on Identity",
+    "week": "May 25-31",
+    "available": true,
+    "learningObjectives": [
+      "Define the term \"Identity.\"",
+      "Examine who we are and the influence of digital spaces, tools, and environments on our own human personality."
+    ],
+    "assessments": [
+      "Did You Read This? Quiz",
+      "Module 2 Assignment: Who am I? Mind Map"
+    ]
+  },
+  {
+    "id": "module-3",
+    "moduleNumber": 3,
+    "title": "Identity in Digital Realms",
+    "week": "June 1-7",
+    "available": true,
+    "learningObjectives": [
+      "Analyze your own identity in digital spaces by conducting a thorough self-audit of your online breadcrumbs.",
+      "Examine who we are and the influence of digital spaces, tools, and environments on our own human personality.",
+      "Define how parent and adult attitudes and perceptions of online spaces differ from those of young adults and children."
+    ],
+    "assessments": [
+      "Module 3 Assignment: Digital Identity Self-Audit",
+      "Did You Read This? Quizzes"
+    ]
+  },
+  {
+    "id": "module-4",
+    "moduleNumber": 4,
+    "title": "Identity in a Rapidly Changing World - Part 1",
+    "week": "June 8-14",
+    "available": true,
+    "learningObjectives": [
+      "Review Moore's Law, Fuller's Knowledge Doubling Theory, Kurzweil's Law of Accelerating Returns, and Thiel's \"End of the Future\" theories.",
+      "Appraise the current relevance of theories proposed by Fuller, Moore, Kurzweil, and Thiel's theory \"End of the Future.\"",
+      "Consider the recent past and make predictions of what is to come next."
+    ],
+    "assessments": [
+      "Module 4 Quiz: Moore, Fuller, Kurzweil, & Thiel",
+      "Module 4 Discussion",
+      "Create an Instagram Reel"
+    ]
+  },
+  {
+    "id": "module-5",
+    "moduleNumber": 5,
+    "title": "Identity in a Rapidly Changing World - Part 2",
+    "week": "June 15-21",
+    "available": true,
+    "learningObjectives": [
+      "Define converging technologies and their impact on all of humanity.",
+      "Synthesize the readings and lecture on future technologies into key takeaways."
+    ],
+    "assessments": [
+      "Module 5 Quiz",
+      "Module 5 Assignment: Create a Poster"
+    ]
+  },
+  {
+    "id": "module-6",
+    "moduleNumber": 6,
+    "title": "Irresistible: Addictive Technology",
+    "week": "June 22-28",
+    "available": true,
+    "learningObjectives": [
+      "Compare and contrast your social media usage with your classmates.",
+      "Explore the connection between behavioral addiction and technology."
+    ],
+    "assessments": [
+      "Graded Survey",
+      "Did You Read This? Quiz"
+    ]
+  },
+  {
+    "id": "module-7",
+    "moduleNumber": 7,
+    "title": "Social Media - Part 1",
+    "week": "June 29-July 5",
+    "available": true,
+    "learningObjectives": [
+      "Identify how social media and other digital technologies may be harmful to people.",
+      "Create a visual representation of important dates that affect our digital lives."
+    ],
+    "assessments": [
+      "Did You Read This? Quiz",
+      "Module 7 Assignment: Create a Timeline"
+    ]
+  },
+  {
+    "id": "module-8",
+    "moduleNumber": 8,
+    "title": "Video Games and Identity",
+    "week": "N/A",
+    "available": false,
+    "learningObjectives": [],
+    "assessments": [],
+    "notes": "The provided PDF does not list learning objectives for this module."
+  },
+  {
+    "id": "module-9",
+    "moduleNumber": 9,
+    "title": "Turning Off (Life Off the Digital Grid)",
+    "week": "July 5",
+    "available": true,
+    "learningObjectives": [
+      "Reflect on how the digital world controls our identity and sense of self by disconnecting from it and reflecting on the experience in a written report or video diary.",
+      "Examine how pervasive our devices and digital spaces prevail in our lives and desires by stepping away from them."
+    ],
+    "assessments": [
+      "Module 9 Assignment: Turning Off (Life Off the Digital Grid)"
+    ]
+  },
+  {
+    "id": "module-10",
+    "moduleNumber": 10,
+    "title": "Social Media - Part 2",
+    "week": "N/A",
+    "available": false,
+    "learningObjectives": [],
+    "assessments": [],
+    "notes": "The provided PDF does not list learning objectives for this module."
+  },
+  {
+    "id": "module-11",
+    "moduleNumber": 11,
+    "title": "Personal Data & Data Mining",
+    "week": "July 6-12",
+    "available": true,
+    "learningObjectives": [
+      "Explain how companies, governments, and industries use data for profit and their own gain.",
+      "Teach others about digital tracking through digital footprints and digital shadows."
+    ],
+    "assessments": [
+      "Module 11 Discussion: Big Data Meme",
+      "Module 11 Assignment: Create Memes"
+    ]
+  },
+  {
+    "id": "module-12",
+    "moduleNumber": 12,
+    "title": "The App Generation",
+    "week": "July 13-19",
+    "available": true,
+    "learningObjectives": [
+      "Discuss the role mobile apps play in identity.",
+      "Analyze what their cell phone apps say about their personality and identity.",
+      "Create a digital artifact for your final project website."
+    ],
+    "assessments": [
+      "Module 12 Discussion: What Our Apps Say About Us",
+      "Module 12 Assignment: Create an Artifact for your Final Project"
+    ]
+  },
+  {
+    "id": "module-13",
+    "moduleNumber": 13,
+    "title": "Emerging Technologies & Identity",
+    "week": "July 20-24",
+    "available": true,
+    "learningObjectives": [
+      "Create a presentation on a chosen emerging technology topic.",
+      "Identify and reflect on your own use and relationships with these emerging technologies.",
+      "Identify emerging technologies and describe their traits."
+    ],
+    "assessments": [
+      "Module 13 Short Presentation",
+      "Graded Anonymous Survey",
+      "Module 13 Quiz"
+    ]
+  },
+  {
+    "id": "module-14",
+    "moduleNumber": 14,
+    "title": "#GEA Final Website Project",
+    "week": "July 24",
+    "available": true,
+    "learningObjectives": [
+      "Analyze a digital identity issue in an in-depth fashion.",
+      "Create a website.",
+      "Share the website with others."
+    ],
+    "assessments": [
+      "Assignment: Create a new digital artifact for your final project website",
+      "Assignment: Final Project"
+    ]
+  }
+]

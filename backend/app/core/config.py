@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     openai_generative_ui_model: str = Field(
         default="gpt-5", alias="OPENAI_GENERATIVE_UI_MODEL"
     )
+    openai_usf_defense_model: str = Field(
+        default="gpt-5.5", alias="OPENAI_USF_DEFENSE_MODEL"
+    )
     aws_access_key_id: str | None = Field(default=None, alias="AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str | None = Field(
         default=None, alias="AWS_SECRET_ACCESS_KEY"
@@ -61,6 +64,18 @@ class Settings(BaseSettings):
     )
     aws_saintpaul_errors_table: str | None = Field(
         default=None, alias="AWS_SAINTPAUL_ERRORS_TABLE"
+    )
+    aws_usf_sessions_table: str | None = Field(
+        default=None, alias="AWS_USF_SESSIONS_TABLE"
+    )
+    aws_usf_events_table: str | None = Field(
+        default=None, alias="AWS_USF_EVENTS_TABLE"
+    )
+    aws_usf_errors_table: str | None = Field(
+        default=None, alias="AWS_USF_ERRORS_TABLE"
+    )
+    aws_usf_recordings_bucket: str | None = Field(
+        default=None, alias="AWS_USF_RECORDINGS_BUCKET"
     )
     auth0_domain: str | None = Field(default=None, alias="AUTH0_DOMAIN")
     auth0_client_id: str | None = Field(default=None, alias="AUTH0_CLIENT_ID")
