@@ -551,10 +551,7 @@ export default function UsfDefenseExperience({
     <main className="min-h-screen bg-[#F6F1E8] px-4 py-8 text-[#171717] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="rounded-[2rem] border border-[#E4D8C8] bg-white px-6 py-6 shadow-[0_18px_60px_rgba(52,42,28,0.08)] sm:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#8A5E2A]">
-            USF Defense
-          </p>
-          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Defend what you learned
