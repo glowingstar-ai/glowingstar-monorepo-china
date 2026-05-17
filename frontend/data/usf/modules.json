@@ -18,7 +18,7 @@
     "id": "module-2",
     "moduleNumber": 2,
     "title": "Philosophical Perspectives on Identity",
-    "week": "May 25-31",
+    "week": "May 26-31",
     "available": true,
     "learningObjectives": [
       "Define the term \"Identity.\"",
@@ -54,34 +54,21 @@
     "learningObjectives": [
       "Review Moore's Law, Fuller's Knowledge Doubling Theory, Kurzweil's Law of Accelerating Returns, and Thiel's \"End of the Future\" theories.",
       "Appraise the current relevance of theories proposed by Fuller, Moore, Kurzweil, and Thiel's theory \"End of the Future.\"",
-      "Consider the recent past and make predictions of what is to come next."
+      "Consider the recent past and make predictions of what is to come next.",
+      "Synthesize the readings and lecture on future technologies into key takeaways."
     ],
     "assessments": [
       "Module 4 Quiz: Moore, Fuller, Kurzweil, & Thiel",
       "Module 4 Discussion",
-      "Create an Instagram Reel"
+      "Create an Instagram Reel",
+      "Module 5 Assignment: Create a Poster"
     ]
   },
   {
     "id": "module-5",
     "moduleNumber": 5,
-    "title": "Identity in a Rapidly Changing World - Part 2",
-    "week": "June 15-21",
-    "available": true,
-    "learningObjectives": [
-      "Define converging technologies and their impact on all of humanity.",
-      "Synthesize the readings and lecture on future technologies into key takeaways."
-    ],
-    "assessments": [
-      "Module 5 Quiz",
-      "Module 5 Assignment: Create a Poster"
-    ]
-  },
-  {
-    "id": "module-6",
-    "moduleNumber": 6,
     "title": "Irresistible: Addictive Technology",
-    "week": "June 22-28",
+    "week": "June 15-21",
     "available": true,
     "learningObjectives": [
       "Compare and contrast your social media usage with your classmates.",
@@ -93,10 +80,10 @@
     ]
   },
   {
-    "id": "module-7",
-    "moduleNumber": 7,
-    "title": "Social Media - Part 1",
-    "week": "June 29-July 5",
+    "id": "module-6",
+    "moduleNumber": 6,
+    "title": "Social Media",
+    "week": "June 22-28",
     "available": true,
     "learningObjectives": [
       "Identify how social media and other digital technologies may be harmful to people.",
@@ -108,20 +95,24 @@
     ]
   },
   {
-    "id": "module-8",
-    "moduleNumber": 8,
+    "id": "module-7",
+    "moduleNumber": 7,
     "title": "Video Games and Identity",
-    "week": "N/A",
-    "available": false,
-    "learningObjectives": [],
-    "assessments": [],
-    "notes": "The provided PDF does not list learning objectives for this module."
+    "week": "June 29-July 5",
+    "available": true,
+    "learningObjectives": [
+      "Analyze identity issues in a video game.",
+      "Create a narrated screencast or voiceover video."
+    ],
+    "assessments": [
+      "Module 8 Assignment: Create a Video Critical Analysis of Identity Issues in a Video Game"
+    ]
   },
   {
-    "id": "module-9",
-    "moduleNumber": 9,
+    "id": "module-8",
+    "moduleNumber": 8,
     "title": "Turning Off (Life Off the Digital Grid)",
-    "week": "July 5",
+    "week": "July 6-12",
     "available": true,
     "learningObjectives": [
       "Reflect on how the digital world controls our identity and sense of self by disconnecting from it and reflecting on the experience in a written report or video diary.",
@@ -132,51 +123,10 @@
     ]
   },
   {
-    "id": "module-10",
-    "moduleNumber": 10,
-    "title": "Social Media - Part 2",
-    "week": "N/A",
-    "available": false,
-    "learningObjectives": [],
-    "assessments": [],
-    "notes": "The provided PDF does not list learning objectives for this module."
-  },
-  {
-    "id": "module-11",
-    "moduleNumber": 11,
-    "title": "Personal Data & Data Mining",
-    "week": "July 6-12",
-    "available": true,
-    "learningObjectives": [
-      "Explain how companies, governments, and industries use data for profit and their own gain.",
-      "Teach others about digital tracking through digital footprints and digital shadows."
-    ],
-    "assessments": [
-      "Module 11 Discussion: Big Data Meme",
-      "Module 11 Assignment: Create Memes"
-    ]
-  },
-  {
-    "id": "module-12",
-    "moduleNumber": 12,
-    "title": "The App Generation",
-    "week": "July 13-19",
-    "available": true,
-    "learningObjectives": [
-      "Discuss the role mobile apps play in identity.",
-      "Analyze what their cell phone apps say about their personality and identity.",
-      "Create a digital artifact for your final project website."
-    ],
-    "assessments": [
-      "Module 12 Discussion: What Our Apps Say About Us",
-      "Module 12 Assignment: Create an Artifact for your Final Project"
-    ]
-  },
-  {
-    "id": "module-13",
-    "moduleNumber": 13,
+    "id": "module-9",
+    "moduleNumber": 9,
     "title": "Emerging Technologies & Identity",
-    "week": "July 20-24",
+    "week": "July 13-19",
     "available": true,
     "learningObjectives": [
       "Create a presentation on a chosen emerging technology topic.",
@@ -190,10 +140,10 @@
     ]
   },
   {
-    "id": "module-14",
-    "moduleNumber": 14,
+    "id": "module-10",
+    "moduleNumber": 10,
     "title": "#GEA Final Website Project",
-    "week": "July 24",
+    "week": "July 20-24",
     "available": true,
     "learningObjectives": [
       "Analyze a digital identity issue in an in-depth fashion.",
