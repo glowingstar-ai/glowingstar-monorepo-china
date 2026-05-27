@@ -122,7 +122,7 @@ class YandaojieDefenseService:
             - 仅返回JSON，格式为: {"question": "...", "targeted_objectives": [{"objective_index": 1, "reason": "..."}], "diagnoses": {"mastered": ["..."], "not_mastered": ["..."]}}
             - question: 你的追问文本。
             - targeted_objectives: 一个数组，说明这个问题考察的是哪个（些）教学目标，以及为什么。objective_index从1开始编号，对应上面的目标编号。reason应解释：这个问题如何帮助你发现学生对该教学目标掌握薄弱的地方（而非帮学生复习）。
-            - diagnoses: 基于学生目前所有回答的诊断分析。mastered列出学生已展示掌握的知识点，not_mastered列出学生尚未掌握或表现薄弱的知识点。每项用简短一句话描述。如果是第一轮且无法判断，可以为空数组。
+            - diagnoses: 基于学生目前所有回答（包括反思内容）的诊断分析。mastered列出学生已展示掌握的知识点，not_mastered列出学生尚未掌握或表现薄弱的知识点。每项用简短一句话描述。每一轮都必须提供诊断。
             - 生成恰好一个追问，不要列表或多个问题。
             - question字段中只能有一个问号。
             - 不要用"和""另外""然后"拼接两个问题。
