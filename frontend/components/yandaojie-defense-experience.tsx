@@ -193,7 +193,8 @@ export default function YandaojieDefenseExperience({
   }, [
     completedAt,
     currentRoundIndex,
-    reflections,
+    reflectionLearned,
+    reflectionQuestions,
     sessionId,
     stage,
     studentId,
@@ -441,7 +442,7 @@ export default function YandaojieDefenseExperience({
                 知识保卫
               </h1>
               <p className="mt-3 max-w-2xl text-base leading-7 text-[#5F5D57]">
-                针对每个教学目标进行反思和知识保卫，每个目标五轮60秒。
+                针对本课内容进行反思，然后完成五轮60秒的知识保卫。
               </p>
               <p className="mt-1 text-sm text-[#8A5E2A]">
                 {activeSubject.label} · {activeSubject.topic} · 小学六年级 · 试点版本
@@ -502,55 +503,33 @@ export default function YandaojieDefenseExperience({
           <section className="mt-6 rounded-[2rem] border border-[#E4D8C8] bg-white p-6 shadow-[0_18px_60px_rgba(52,42,28,0.08)]">
             <h2 className="text-2xl font-bold">知识保卫前的反思</h2>
             <p className="mt-2 text-sm text-[#5F5D57]">
-              教学目标 {currentObjectiveIndex + 1} / {activeSubject.learningObjectives.length}
+              回顾本课所学内容，写下你学到了什么以及还有哪些疑问。
             </p>
 
             <div className="mt-6">
-              <div className="rounded-2xl border border-[#E4D8C8] bg-[#FDFBF7] p-5">
-                <p className="text-sm font-semibold text-[#8A5E2A]">
-                  教学目标 {currentObjectiveIndex + 1}
-                </p>
-                <p className="mt-1 text-sm leading-6 text-[#3A332A]">
-                  {activeSubject.learningObjectives[currentObjectiveIndex]}
-                </p>
-                <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                  <label className="block">
-                    <span className="text-sm font-semibold">
-                      你学到了什么？
-                    </span>
-                    <textarea
-                      value={reflections[currentObjectiveIndex]?.learned ?? ""}
-                      onChange={(e) => {
-                        const next = [...reflections];
-                        next[currentObjectiveIndex] = {
-                          ...next[currentObjectiveIndex],
-                          learned: e.target.value,
-                        };
-                        setReflections(next);
-                      }}
-                      className="mt-2 min-h-28 w-full rounded-2xl border border-[#D8D2C7] bg-white p-4 text-[#171717] outline-none placeholder:text-[#8A8178] focus:border-[#171717]"
-                      placeholder="简要总结你对这个目标的理解..."
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm font-semibold">
-                      还有什么疑问？
-                    </span>
-                    <textarea
-                      value={reflections[currentObjectiveIndex]?.questions ?? ""}
-                      onChange={(e) => {
-                        const next = [...reflections];
-                        next[currentObjectiveIndex] = {
-                          ...next[currentObjectiveIndex],
-                          questions: e.target.value,
-                        };
-                        setReflections(next);
-                      }}
-                      className="mt-2 min-h-28 w-full rounded-2xl border border-[#D8D2C7] bg-white p-4 text-[#171717] outline-none placeholder:text-[#8A8178] focus:border-[#171717]"
-                      placeholder="写下你仍然困惑的地方（选填）..."
-                    />
-                  </label>
-                </div>
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <label className="block">
+                  <span className="text-sm font-semibold">
+                    你学到了什么？
+                  </span>
+                  <textarea
+                    value={reflectionLearned}
+                    onChange={(e) => setReflectionLearned(e.target.value)}
+                    className="mt-2 min-h-28 w-full rounded-2xl border border-[#D8D2C7] bg-white p-4 text-[#171717] outline-none placeholder:text-[#8A8178] focus:border-[#171717]"
+                    placeholder="简要总结你学到的内容..."
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold">
+                    还有什么疑问？
+                  </span>
+                  <textarea
+                    value={reflectionQuestions}
+                    onChange={(e) => setReflectionQuestions(e.target.value)}
+                    className="mt-2 min-h-28 w-full rounded-2xl border border-[#D8D2C7] bg-white p-4 text-[#171717] outline-none placeholder:text-[#8A8178] focus:border-[#171717]"
+                    placeholder="写下你仍然困惑的地方（选填）..."
+                  />
+                </label>
               </div>
             </div>
 
@@ -558,11 +537,9 @@ export default function YandaojieDefenseExperience({
               <p className="mt-4 text-sm text-[#B42318]">{defenseError}</p>
             ) : null}
             <div className="mt-6 flex flex-wrap gap-3">
-              {currentObjectiveIndex === 0 ? (
-                <SecondaryButton onClick={() => setStage("student-id")}>
-                  返回
-                </SecondaryButton>
-              ) : null}
+              <SecondaryButton onClick={() => setStage("student-id")}>
+                返回
+              </SecondaryButton>
               <PrimaryButton
                 disabled={!canSubmitReflection || isGeneratingQuestion}
                 onClick={() => void submitReflection()}
@@ -584,7 +561,7 @@ export default function YandaojieDefenseExperience({
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-[#8A5E2A]">
-                    教学目标 {currentObjectiveIndex + 1} · 第 {currentRoundIndex + 1} 轮 / 共 {DEFENSE_ROUNDS_PER_OBJECTIVE} 轮
+                    第 {currentRoundIndex + 1} 轮 / 共 {DEFENSE_ROUNDS_PER_OBJECTIVE} 轮
                   </p>
                   <h2 className="mt-1 text-2xl font-bold">知识保卫题目</h2>
                 </div>

@@ -201,6 +201,87 @@ class YandaojiePersistenceService:
 
         return saved_at, completed_round_count
 
+    async def get_research_overview(self, limit: int | None = None) -> dict[str, Any]:
+        """Return all sessions grouped by student for internal research."""
+        if not self._enabled or self._db is None:
+            return {"persistence_enabled": False, "generated_at": datetime.now(timezone.utc).isoformat(), "session_count": 0, "students": []}
+
+        sessions_cursor = self._db.sessions.find().sort("started_at", -1)
+        if limit:
+            sessions_cursor = sessions_cursor.limit(limit)
+        sessions = await sessions_cursor.to_list(length=limit or 1000)
+
+        students_map: dict[str, dict[str, Any]] = {}
+        for s in sessions:
+            sid = s.get("student_id", "unknown")
+            if sid not in students_map:
+                students_map[sid] = {"student_id": sid, "session_count": 0, "last_seen_at": None, "sessions": []}
+            students_map[sid]["session_count"] += 1
+            last_seen = s.get("last_seen_at") or s.get("started_at")
+            if last_seen and (not students_map[sid]["last_seen_at"] or str(last_seen) > str(students_map[sid]["last_seen_at"])):
+                students_map[sid]["last_seen_at"] = last_seen
+
+            event_count = await self._db.events.count_documents({"session_id": s["session_id"]})
+            error_count = await self._db.errors.count_documents({"session_id": s["session_id"]})
+            question_count = await self._db.defense_questions.count_documents({"session_id": s["session_id"]})
+            turn_count = await self._db.defense_turns.count_documents({"session_id": s["session_id"]})
+
+            students_map[sid]["sessions"].append({
+                "session_id": s["session_id"],
+                "student_id": s.get("student_id"),
+                "stage": s.get("stage"),
+                "subject_id": s.get("subject_id"),
+                "subject_label": s.get("subject_label"),
+                "subject_topic": s.get("subject_topic"),
+                "learning_objectives": s.get("learning_objectives", []),
+                "reflections": s.get("reflections", []),
+                "current_round_index": s.get("current_round_index", 0),
+                "completed_round_count": s.get("completed_round_count", 0),
+                "defense_turns": s.get("defense_turns", []),
+                "event_count": event_count,
+                "error_count": error_count,
+                "question_count": question_count,
+                "defense_turn_count": turn_count,
+                "started_at": s.get("started_at"),
+                "last_seen_at": s.get("last_seen_at"),
+                "completed_at": s.get("completed_at"),
+            })
+
+        return {
+            "persistence_enabled": True,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "session_count": len(sessions),
+            "students": list(students_map.values()),
+        }
+
+    async def get_session_research_detail(self, session_id: str) -> dict[str, Any]:
+        """Return full details for a single session."""
+        if not self._enabled or self._db is None:
+            return {"persistence_enabled": False, "generated_at": datetime.now(timezone.utc).isoformat(), "session": None, "events": [], "errors": [], "defense_turns": [], "generated_questions": []}
+
+        session = await self._db.sessions.find_one({"session_id": session_id})
+        events = await self._db.events.find({"session_id": session_id}).sort("recorded_at", 1).to_list(500)
+        errors = await self._db.errors.find({"session_id": session_id}).sort("recorded_at", 1).to_list(500)
+        questions = await self._db.defense_questions.find({"session_id": session_id}).sort("round_index", 1).to_list(500)
+        turns = await self._db.defense_turns.find({"session_id": session_id}).sort("round_index", 1).to_list(500)
+
+        def serialize(doc: dict) -> dict:
+            d = {k: v for k, v in doc.items() if k != "_id"}
+            for k, v in d.items():
+                if isinstance(v, datetime):
+                    d[k] = v.isoformat()
+            return d
+
+        return {
+            "persistence_enabled": True,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "session": serialize(session) if session else None,
+            "events": [serialize(e) for e in events],
+            "errors": [serialize(e) for e in errors],
+            "defense_turns": [serialize(t) for t in turns],
+            "generated_questions": [serialize(q) for q in questions],
+        }
+
     async def record_error(self, payload: YandaojieErrorRecord) -> tuple[str, datetime]:
         error_id = uuid4().hex
         recorded_at = datetime.now(timezone.utc)

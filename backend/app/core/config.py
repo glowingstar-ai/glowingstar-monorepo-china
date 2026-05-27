@@ -99,6 +99,9 @@ class Settings(BaseSettings):
     yandaojie_mongodb_database: str = Field(
         default="yandaojie", alias="YANDAOJIE_MONGODB_DATABASE"
     )
+    tencent_secret_id: str | None = Field(default=None, alias="TENCENT_SECRET_ID")
+    tencent_secret_key: str | None = Field(default=None, alias="TENCENT_SECRET_KEY")
+    tencent_region: str = Field(default="ap-chengdu", alias="TENCENT_REGION")
     auth0_domain: str | None = Field(default=None, alias="AUTH0_DOMAIN")
     auth0_client_id: str | None = Field(default=None, alias="AUTH0_CLIENT_ID")
     auth0_client_secret: str | None = Field(

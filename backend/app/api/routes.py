@@ -1386,6 +1386,33 @@ async def save_yandaojie_defense_turn(
     )
 
 
+@router.get(
+    "/yandaojie/research/overview",
+    tags=["yandaojie"],
+)
+async def get_yandaojie_research_overview(
+    limit: int | None = Query(None, ge=1, le=1000),
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> dict:
+    """Return grouped Yandaojie student/session activity for internal review."""
+    return await persistence.get_research_overview(limit=limit)
+
+
+@router.get(
+    "/yandaojie/research/session/{session_id}",
+    tags=["yandaojie"],
+)
+async def get_yandaojie_research_session_detail(
+    session_id: str,
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> dict:
+    """Return full details for one Yandaojie session."""
+    result = await persistence.get_session_research_detail(session_id)
+    if result.get("session") is None:
+        raise HTTPException(status_code=404, detail="Yandaojie session not found")
+    return result
+
+
 @router.post("/tutor/chat", response_model=TutorChatResponse, tags=["tutor"])
 async def create_tutor_chat_reply(
     payload: TutorChatRequest,
