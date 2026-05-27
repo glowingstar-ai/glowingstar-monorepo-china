@@ -77,6 +77,28 @@ class Settings(BaseSettings):
     aws_usf_recordings_bucket: str | None = Field(
         default=None, alias="AWS_USF_RECORDINGS_BUCKET"
     )
+    aws_yandaojie_sessions_table: str | None = Field(
+        default=None, alias="AWS_YANDAOJIE_SESSIONS_TABLE"
+    )
+    aws_yandaojie_events_table: str | None = Field(
+        default=None, alias="AWS_YANDAOJIE_EVENTS_TABLE"
+    )
+    aws_yandaojie_errors_table: str | None = Field(
+        default=None, alias="AWS_YANDAOJIE_ERRORS_TABLE"
+    )
+    deepseek_api_key: str | None = Field(default=None, alias="DEEPSEEK_API_KEY")
+    deepseek_api_base_url: str = Field(
+        default="https://api.deepseek.com", alias="DEEPSEEK_API_BASE_URL"
+    )
+    deepseek_model: str = Field(
+        default="deepseek-v4-pro", alias="DEEPSEEK_MODEL"
+    )
+    yandaojie_mongodb_uri: str | None = Field(
+        default=None, alias="YANDAOJIE_MONGODB_URI"
+    )
+    yandaojie_mongodb_database: str = Field(
+        default="yandaojie", alias="YANDAOJIE_MONGODB_DATABASE"
+    )
     auth0_domain: str | None = Field(default=None, alias="AUTH0_DOMAIN")
     auth0_client_id: str | None = Field(default=None, alias="AUTH0_CLIENT_ID")
     auth0_client_secret: str | None = Field(

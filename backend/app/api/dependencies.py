@@ -22,6 +22,11 @@ from app.services.tutor import TutorModeService
 from app.services.usf_defense import UsfDefenseService
 from app.services.usf_persistence import UsfPersistenceError, UsfPersistenceService
 from app.services.vision import VisionAnalyzer
+from app.services.yandaojie_defense import YandaojieDefenseService
+from app.services.yandaojie_persistence import (
+    YandaojiePersistenceError,
+    YandaojiePersistenceService,
+)
 
 
 def get_settings() -> Settings:
@@ -306,4 +311,40 @@ def get_payment_service() -> StripePaymentService:
     try:
         return _get_payment_service()
     except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@lru_cache
+def _get_yandaojie_defense_service() -> YandaojieDefenseService:
+    """Return a singleton Yandaojie defense service configured for DeepSeek."""
+
+    settings = _get_settings()
+    return YandaojieDefenseService(
+        api_key=settings.deepseek_api_key,
+        base_url=settings.deepseek_api_base_url,
+        model=settings.deepseek_model,
+    )
+
+
+def get_yandaojie_defense_service() -> YandaojieDefenseService:
+    """FastAPI dependency wrapper around the Yandaojie defense service."""
+
+    return _get_yandaojie_defense_service()
+
+
+@lru_cache
+def _get_yandaojie_persistence() -> YandaojiePersistenceService:
+    settings = _get_settings()
+    return YandaojiePersistenceService(
+        mongodb_uri=settings.yandaojie_mongodb_uri,
+        database_name=settings.yandaojie_mongodb_database,
+    )
+
+
+def get_yandaojie_persistence() -> YandaojiePersistenceService:
+    """Return the configured Yandaojie persistence service."""
+
+    try:
+        return _get_yandaojie_persistence()
+    except YandaojiePersistenceError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc

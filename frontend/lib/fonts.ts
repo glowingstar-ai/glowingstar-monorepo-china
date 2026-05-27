@@ -1,51 +1,64 @@
-import {
-  DM_Sans,
-  IBM_Plex_Sans,
-  Inter,
-  Manrope,
-  Outfit,
-  Playfair_Display,
-  Plus_Jakarta_Sans,
-} from "next/font/google";
+import localFont from "next/font/local";
 
-export const inter = Inter({
-  subsets: ["latin"],
+const systemFont = localFont({
+  src: [
+    {
+      path: "../public/fonts/inter-var.woff2",
+      style: "normal",
+    },
+  ],
   display: "swap",
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    "sans-serif",
+  ],
   variable: "--font-inter",
 });
 
-export const manrope = Manrope({
-  subsets: ["latin"],
+export const inter = systemFont;
+
+export const manrope = localFont({
+  src: [{ path: "../public/fonts/inter-var.woff2", style: "normal" }],
   display: "swap",
+  fallback: ["sans-serif"],
   variable: "--font-manrope",
 });
 
-export const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+export const plexSans = localFont({
+  src: [{ path: "../public/fonts/inter-var.woff2", style: "normal" }],
+  display: "swap",
+  fallback: ["sans-serif"],
   variable: "--font-plex",
 });
 
-export const dmSans = DM_Sans({
-  subsets: ["latin"],
+export const dmSans = localFont({
+  src: [{ path: "../public/fonts/inter-var.woff2", style: "normal" }],
   display: "swap",
+  fallback: ["sans-serif"],
   variable: "--font-dm-sans",
 });
 
-export const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
+export const plusJakartaSans = localFont({
+  src: [{ path: "../public/fonts/inter-var.woff2", style: "normal" }],
   display: "swap",
+  fallback: ["sans-serif"],
   variable: "--font-plus-jakarta",
 });
 
-export const outfit = Outfit({
-  subsets: ["latin"],
+export const outfit = localFont({
+  src: [{ path: "../public/fonts/inter-var.woff2", style: "normal" }],
   display: "swap",
+  fallback: ["sans-serif"],
   variable: "--font-outfit",
 });
 
-export const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
+export const playfairDisplay = localFont({
+  src: [{ path: "../public/fonts/inter-var.woff2", style: "normal" }],
   display: "swap",
+  fallback: ["serif"],
   variable: "--font-playfair",
 });

@@ -29,6 +29,8 @@ from app.api.dependencies import (
     get_usf_defense_service,
     get_usf_persistence,
     get_vision_analyzer,
+    get_yandaojie_defense_service,
+    get_yandaojie_persistence,
 )
 from app.core.config import Settings
 from app.schemas.auth import (
@@ -120,6 +122,27 @@ from app.services.vision import (
     VisionContext,
 )
 from app.services.context_storage import ContextStorage
+from app.schemas.yandaojie import (
+    YandaojieDefenseQuestionRequest,
+    YandaojieDefenseQuestionResponse,
+    YandaojieDefenseTurnRequest,
+    YandaojieDefenseTurnResponse,
+    YandaojieErrorRecord,
+    YandaojieEventRequest,
+    YandaojieEventResponse,
+    YandaojieSessionSnapshotRequest,
+    YandaojieSessionSnapshotResponse,
+    YandaojieSessionStartRequest,
+    YandaojieSessionStartResponse,
+)
+from app.services.yandaojie_defense import (
+    YandaojieDefenseService,
+    YandaojieDefenseServiceError,
+)
+from app.services.yandaojie_persistence import (
+    YandaojiePersistenceError,
+    YandaojiePersistenceService,
+)
 
 router = APIRouter()
 
@@ -1195,6 +1218,174 @@ async def create_tutor_mode_plan(
     return await tutor_service.generate_plan(payload)
 
 
+@router.post(
+    "/yandaojie/session/start",
+    response_model=YandaojieSessionStartResponse,
+    tags=["yandaojie"],
+)
+async def create_yandaojie_session(
+    payload: YandaojieSessionStartRequest,
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> YandaojieSessionStartResponse:
+    """Create a new persisted Yandaojie defense session."""
+
+    try:
+        created = await persistence.create_session(payload)
+    except YandaojiePersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return YandaojieSessionStartResponse(
+        session_id=created.session_id,
+        started_at=created.started_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/yandaojie/session/snapshot",
+    response_model=YandaojieSessionSnapshotResponse,
+    tags=["yandaojie"],
+)
+async def save_yandaojie_session_snapshot(
+    payload: YandaojieSessionSnapshotRequest,
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> YandaojieSessionSnapshotResponse:
+    """Persist the latest recoverable Yandaojie session state."""
+
+    try:
+        saved_at = await persistence.save_snapshot(payload)
+    except YandaojiePersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return YandaojieSessionSnapshotResponse(
+        saved_at=saved_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/yandaojie/session/event",
+    response_model=YandaojieEventResponse,
+    tags=["yandaojie"],
+)
+async def append_yandaojie_event(
+    payload: YandaojieEventRequest,
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> YandaojieEventResponse:
+    """Append a Yandaojie workflow event."""
+
+    try:
+        event_id, recorded_at = await persistence.append_event(payload)
+    except YandaojiePersistenceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return YandaojieEventResponse(
+        event_id=event_id,
+        recorded_at=recorded_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/yandaojie/defense/question",
+    response_model=YandaojieDefenseQuestionResponse,
+    tags=["yandaojie"],
+)
+async def create_yandaojie_defense_question(
+    payload: YandaojieDefenseQuestionRequest,
+    defense_service: YandaojieDefenseService = Depends(get_yandaojie_defense_service),
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> YandaojieDefenseQuestionResponse:
+    """Generate and persist one Yandaojie defense follow-up question."""
+
+    try:
+        generated = await defense_service.generate_question(payload)
+    except YandaojieDefenseServiceError as exc:
+        await _record_yandaojie_error_safely(
+            persistence,
+            YandaojieErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_question",
+                error_scope="backend",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+                metadata={
+                    "subject_id": payload.subject_id,
+                    "subject_topic": payload.subject_topic,
+                },
+            ),
+        )
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    try:
+        await persistence.persist_generated_question(
+            payload=payload,
+            question=generated.question,
+            model=generated.model,
+            prompt=generated.prompt,
+            generated_at=generated.generated_at,
+        )
+    except YandaojiePersistenceError as exc:
+        await _record_yandaojie_error_safely(
+            persistence,
+            YandaojieErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_question_persist",
+                error_scope="storage",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return YandaojieDefenseQuestionResponse(
+        model=generated.model,
+        round_index=payload.round_index,
+        question=generated.question,
+        generated_at=generated.generated_at,
+        persistence_enabled=persistence.enabled,
+    )
+
+
+@router.post(
+    "/yandaojie/defense/turn",
+    response_model=YandaojieDefenseTurnResponse,
+    tags=["yandaojie"],
+)
+async def save_yandaojie_defense_turn(
+    payload: YandaojieDefenseTurnRequest,
+    persistence: YandaojiePersistenceService = Depends(get_yandaojie_persistence),
+) -> YandaojieDefenseTurnResponse:
+    """Persist a completed Yandaojie defense answer."""
+
+    try:
+        saved_at, completed_round_count = await persistence.persist_defense_turn(payload)
+    except YandaojiePersistenceError as exc:
+        await _record_yandaojie_error_safely(
+            persistence,
+            YandaojieErrorRecord(
+                session_id=payload.session_id,
+                student_id=payload.student_id,
+                stage="defense_turn_persist",
+                error_scope="storage",
+                error_message=str(exc),
+                raw_error=repr(exc),
+                round_index=payload.round_index,
+            ),
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return YandaojieDefenseTurnResponse(
+        saved_at=saved_at,
+        persistence_enabled=persistence.enabled,
+        completed_round_count=completed_round_count,
+    )
+
+
 @router.post("/tutor/chat", response_model=TutorChatResponse, tags=["tutor"])
 async def create_tutor_chat_reply(
     payload: TutorChatRequest,
@@ -1432,6 +1623,16 @@ def _record_usf_error_safely(
     try:
         persistence.record_error(payload)
     except UsfPersistenceError:
+        pass
+
+
+async def _record_yandaojie_error_safely(
+    persistence: YandaojiePersistenceService,
+    payload: YandaojieErrorRecord,
+) -> None:
+    try:
+        await persistence.record_error(payload)
+    except YandaojiePersistenceError:
         pass
 
 
