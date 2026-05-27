@@ -145,6 +145,8 @@ class YandaojiePersistenceService:
         prompt: str,
         generated_at: datetime,
         reasoning_content: str | None = None,
+        targeted_objectives: list[dict] | None = None,
+        diagnoses: dict | None = None,
     ) -> datetime:
         if not self._enabled or self._db is None:
             return generated_at
@@ -168,6 +170,8 @@ class YandaojiePersistenceService:
                 "prompt": prompt,
                 "question": question,
                 "reasoning_content": reasoning_content,
+                "targeted_objectives": targeted_objectives,
+                "diagnoses": diagnoses,
                 "created_at": generated_at,
             }
             await self._db.defense_questions.insert_one(doc)

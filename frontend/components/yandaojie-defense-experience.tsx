@@ -584,7 +584,7 @@ export default function YandaojieDefenseExperience({
                 {isGeneratingQuestion ? (
                   <div className="flex items-center gap-3 text-[#5F5D57]">
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    正在生成知识保卫题目...
+                    思考中，请稍等...
                   </div>
                 ) : (
                   <p className="text-lg font-semibold leading-8">

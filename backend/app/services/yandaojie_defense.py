@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from textwrap import dedent
@@ -30,6 +29,8 @@ class YandaojieGeneratedQuestion:
     generated_at: datetime
     prompt: str
     reasoning_content: str | None = None
+    targeted_objectives: list[dict[str, Any]] | None = None
+    diagnoses: dict[str, list[str]] | None = None
 
 
 class YandaojieDefenseService:
@@ -87,7 +88,7 @@ class YandaojieDefenseService:
             data = response.json()
             content = self._extract_content(data)
             reasoning_content = self._extract_reasoning_content(data)
-            question = self._parse_question(content)
+            question, targeted_objectives, diagnoses = self._parse_question(content)
         except YandaojieDefenseServiceError:
             raise
         except Exception as exc:
@@ -102,6 +103,8 @@ class YandaojieDefenseService:
             generated_at=datetime.now(timezone.utc),
             prompt=user_prompt,
             reasoning_content=reasoning_content,
+            targeted_objectives=targeted_objectives,
+            diagnoses=diagnoses,
         )
 
     def _build_messages(
@@ -116,7 +119,10 @@ class YandaojieDefenseService:
             对话，而非随机测验。
 
             严格约束:
-            - 仅返回JSON，格式为: {"question": "..."}
+            - 仅返回JSON，格式为: {"question": "...", "targeted_objectives": [{"objective_index": 1, "reason": "..."}], "diagnoses": {"mastered": ["..."], "not_mastered": ["..."]}}
+            - question: 你的追问文本。
+            - targeted_objectives: 一个数组，说明这个问题考察的是哪个（些）教学目标，以及为什么。objective_index从1开始编号，对应上面的目标编号。reason应解释：这个问题如何帮助你发现学生对该教学目标掌握薄弱的地方（而非帮学生复习）。
+            - diagnoses: 基于学生目前所有回答的诊断分析。mastered列出学生已展示掌握的知识点，not_mastered列出学生尚未掌握或表现薄弱的知识点。每项用简短一句话描述。如果是第一轮且无法判断，可以为空数组。
             - 生成恰好一个追问，不要列表或多个问题。
             - question字段中只能有一个问号。
             - 不要用"和""另外""然后"拼接两个问题。
@@ -130,6 +136,7 @@ class YandaojieDefenseService:
             - 你的问题必须直接引用或回应学生在上一轮说过的某个具体内容。如果学生未提供有意义的回答，要求学生展开说明，而不是引入新的知识点。
             - 必须提出开放式问题（如"为什么""怎么""请解释"），不要问是非题或选择题。
             - 你的追问必须直接考察教学目标中明确提到的知识或能力，不要偏离到与教学目标无直接关系的泛泛话题讨论。
+            - 如果科目是英语课：学生可以用中文或英文回答。如果你的问题需要学生用英文作答（例如造句、写词汇、写短文），必须在问题中明确写出"请用英语回答"或"Please answer in English"，不能假设学生会自动用英语。
         """).strip()
 
         objectives = "\n".join(
@@ -205,7 +212,7 @@ class YandaojieDefenseService:
             return reasoning.strip()
         return None
 
-    def _parse_question(self, content: str) -> str:
+    def _parse_question(self, content: str) -> tuple[str, list[dict[str, Any]] | None, dict[str, list[str]] | None]:
         try:
             parsed = json.loads(content)
         except json.JSONDecodeError as exc:
@@ -219,27 +226,13 @@ class YandaojieDefenseService:
                 "Defense question response did not include a question"
             )
 
-        return _single_follow_up_question(question)
+        targeted_objectives = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("targeted_objectives"), list):
+            targeted_objectives = parsed["targeted_objectives"]
 
+        diagnoses = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("diagnoses"), dict):
+            diagnoses = parsed["diagnoses"]
 
-def _single_follow_up_question(question: str) -> str:
-    """Normalize accidental multi-question model output to one follow-up question."""
+        return question.strip(), targeted_objectives, diagnoses
 
-    normalized = " ".join(question.strip().split())
-    if not normalized:
-        raise YandaojieDefenseServiceError(
-            "Defense question response did not include a question"
-        )
-
-    numbered_match = re.match(r"^(?:\d+[.)]|[-*])\s*(.+)$", normalized)
-    if numbered_match:
-        normalized = numbered_match.group(1).strip()
-
-    question_mark_index = normalized.find("\uff1f")
-    if question_mark_index == -1:
-        question_mark_index = normalized.find("?")
-    if question_mark_index != -1:
-        return normalized[: question_mark_index + 1].strip()
-
-    first_line = re.split(r"(?:\s+\d+[.)]\s+|\s+[-*]\s+)", normalized, maxsplit=1)[0]
-    return first_line.strip()

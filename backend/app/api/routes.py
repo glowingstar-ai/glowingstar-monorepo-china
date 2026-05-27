@@ -1327,6 +1327,8 @@ async def create_yandaojie_defense_question(
             prompt=generated.prompt,
             generated_at=generated.generated_at,
             reasoning_content=generated.reasoning_content,
+            targeted_objectives=generated.targeted_objectives,
+            diagnoses=generated.diagnoses,
         )
     except YandaojiePersistenceError as exc:
         await _record_yandaojie_error_safely(

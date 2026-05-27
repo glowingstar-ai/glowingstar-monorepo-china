@@ -363,9 +363,61 @@ export default function YandaojieResearchDashboard(): JSX.Element {
                         <article key={idx} className="rounded-2xl bg-[#F6F1E8] p-4">
                           <p className="font-semibold">第 {((q.round_index as number) ?? 0) + 1} 轮</p>
                           <p className="mt-2 text-sm leading-6 text-[#5F5D57]">{q.question as string}</p>
-                          {(q.reasoning_content as string) ? (
+
+                          {Array.isArray(q.targeted_objectives) && (q.targeted_objectives as Array<{objective_index: number; reason: string}>).length > 0 ? (
                             <details className="mt-3">
                               <summary className="cursor-pointer text-xs font-semibold text-[#8A5E2A] hover:underline">
+                                考察的教学目标
+                              </summary>
+                              <div className="mt-2 rounded-xl border border-[#E4D8C8] bg-white p-3">
+                                <ul className="space-y-1.5">
+                                  {(q.targeted_objectives as Array<{objective_index: number; reason: string}>).map((obj, oi) => (
+                                    <li key={oi} className="text-xs leading-5 text-[#5F5D57]">
+                                      <span className="font-semibold text-[#171717]">目标{obj.objective_index}:</span>{" "}
+                                      {obj.reason}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </details>
+                          ) : null}
+
+                          {(q.diagnoses as {mastered?: string[]; not_mastered?: string[]}) && (
+                            ((q.diagnoses as {mastered?: string[]; not_mastered?: string[]})?.mastered?.length ?? 0) > 0 ||
+                            ((q.diagnoses as {mastered?: string[]; not_mastered?: string[]})?.not_mastered?.length ?? 0) > 0
+                          ) ? (
+                            <details className="mt-3">
+                              <summary className="cursor-pointer text-xs font-semibold text-[#256C42] hover:underline">
+                                学生掌握情况诊断
+                              </summary>
+                              <div className="mt-2 rounded-xl border border-[#E4D8C8] bg-white p-3 text-xs leading-5">
+                                {((q.diagnoses as {mastered?: string[]})?.mastered?.length ?? 0) > 0 ? (
+                                  <div>
+                                    <p className="font-semibold text-[#256C42]">已掌握:</p>
+                                    <ul className="mt-1 list-disc pl-4 text-[#5F5D57]">
+                                      {(q.diagnoses as {mastered: string[]}).mastered.map((item: string, i: number) => (
+                                        <li key={i}>{item}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ) : null}
+                                {((q.diagnoses as {not_mastered?: string[]})?.not_mastered?.length ?? 0) > 0 ? (
+                                  <div className="mt-2">
+                                    <p className="font-semibold text-[#A43D36]">未掌握:</p>
+                                    <ul className="mt-1 list-disc pl-4 text-[#5F5D57]">
+                                      {(q.diagnoses as {not_mastered: string[]}).not_mastered.map((item: string, i: number) => (
+                                        <li key={i}>{item}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ) : null}
+                              </div>
+                            </details>
+                          ) : null}
+
+                          {(q.reasoning_content as string) ? (
+                            <details className="mt-3">
+                              <summary className="cursor-pointer text-xs font-semibold text-[#6B665E] hover:underline">
                                 查看AI思维过程
                               </summary>
                               <p className="mt-2 whitespace-pre-wrap rounded-xl bg-white p-3 text-xs leading-5 text-[#5F5D57]">
@@ -373,6 +425,7 @@ export default function YandaojieResearchDashboard(): JSX.Element {
                               </p>
                             </details>
                           ) : null}
+
                           <p className="mt-2 text-xs text-[#6B665E]">
                             {(q.model as string) ?? "unknown"} · {formatDateTime(q.generated_at as string)}
                           </p>
