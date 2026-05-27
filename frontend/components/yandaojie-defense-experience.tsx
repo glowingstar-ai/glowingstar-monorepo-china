@@ -117,7 +117,10 @@ function StepPill({
 }
 
 function formatSeconds(seconds: number): string {
-  return `00:${String(Math.max(seconds, 0)).padStart(2, "0")}`;
+  const s = Math.max(seconds, 0);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
 
 export default function YandaojieDefenseExperience({
