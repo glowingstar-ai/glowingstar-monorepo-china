@@ -3,6 +3,7 @@
 import {
   CheckCircle2,
   Loader2,
+  RefreshCw,
   SendHorizonal,
   Timer,
 } from "lucide-react";
@@ -19,7 +20,7 @@ import type { YandaojieSubject } from "@/lib/yandaojie";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
 const DEFENSE_ROUNDS_PER_OBJECTIVE = 5;
-const ROUND_SECONDS = 60;
+const ROUND_SECONDS = 120;
 
 type Stage = "student-id" | "reflection" | "defense" | "complete";
 
@@ -145,6 +146,8 @@ export default function YandaojieDefenseExperience({
     null,
   );
   const timedOutRoundRef = useRef<string | null>(null);
+  const isSavingRef = useRef(false);
+  const isGeneratingRef = useRef(false);
 
   const activeSubject = subject ?? subjects[0] ?? null;
 
@@ -179,7 +182,14 @@ export default function YandaojieDefenseExperience({
     const roundKey = `${currentRoundIndex}:${currentQuestion}`;
     if (timedOutRoundRef.current === roundKey) return;
     timedOutRoundRef.current = roundKey;
-    void saveTurn({ allowEmptyAnswer: true });
+    const attemptSave = () => {
+      if (isSavingRef.current || isGeneratingRef.current) {
+        window.setTimeout(attemptSave, 500);
+        return;
+      }
+      void saveTurn({ allowEmptyAnswer: true });
+    };
+    attemptSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRoundTimedOut, currentQuestion, currentRoundIndex]);
 
@@ -300,6 +310,7 @@ export default function YandaojieDefenseExperience({
     if (!activeSubject || !sessionId || !studentId) return;
     setDefenseError(null);
     setIsGeneratingQuestion(true);
+    isGeneratingRef.current = true;
     setCurrentQuestion("");
     setAnswerDraft("");
     try {
@@ -341,6 +352,7 @@ export default function YandaojieDefenseExperience({
       setDefenseError("无法生成下一道保卫题目。");
     } finally {
       setIsGeneratingQuestion(false);
+      isGeneratingRef.current = false;
     }
   };
 
@@ -365,16 +377,16 @@ export default function YandaojieDefenseExperience({
     options: { allowEmptyAnswer?: boolean } = {},
   ): Promise<void> => {
     const answerText = answerDraft.trim();
-    if (
-      !activeSubject ||
-      !currentQuestion ||
-      isSavingTurn ||
-      (!options.allowEmptyAnswer && !answerText)
-    )
-      return;
+    if (!activeSubject || !currentQuestion) return;
+    if (options.allowEmptyAnswer) {
+      if (isSavingRef.current) return;
+    } else {
+      if (isSavingTurn || !answerText) return;
+    }
 
     const answeredAt = new Date().toISOString();
     setIsSavingTurn(true);
+    isSavingRef.current = true;
     setDefenseError(null);
     try {
       const response = await fetch(`${API_BASE}/yandaojie/defense/turn`, {
@@ -416,6 +428,7 @@ export default function YandaojieDefenseExperience({
       setDefenseError("无法保存你的回答。");
     } finally {
       setIsSavingTurn(false);
+      isSavingRef.current = false;
     }
   };
 
@@ -442,7 +455,7 @@ export default function YandaojieDefenseExperience({
                 知识保卫
               </h1>
               <p className="mt-3 max-w-2xl text-base leading-7 text-[#5F5D57]">
-                针对本课内容进行反思，然后完成五轮60秒的知识保卫。
+                针对本课内容进行反思，然后完成五轮120秒的知识保卫。
               </p>
               <p className="mt-1 text-sm text-[#8A5E2A]">
                 {activeSubject.label} · {activeSubject.topic} · 小学六年级 · 试点版本
@@ -613,7 +626,21 @@ export default function YandaojieDefenseExperience({
               ) : null}
 
               {defenseError ? (
-                <p className="mt-4 text-sm text-[#B42318]">{defenseError}</p>
+                <div className="mt-4 flex items-center gap-3">
+                  <p className="text-sm text-[#B42318]">{defenseError}</p>
+                  <button
+                    onClick={() => {
+                      setDefenseError(null);
+                      timedOutRoundRef.current = null;
+                      void generateQuestion(currentRoundIndex, turns);
+                    }}
+                    disabled={isGeneratingQuestion}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#D8D2C7] bg-white px-3 py-1.5 text-xs font-semibold text-[#171717] hover:bg-[#F6F1E8] disabled:opacity-50"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    重新生成
+                  </button>
+                </div>
               ) : null}
 
               <div className="mt-6 flex flex-wrap justify-end gap-3">
