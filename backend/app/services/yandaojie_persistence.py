@@ -144,12 +144,13 @@ class YandaojiePersistenceService:
         model: str,
         prompt: str,
         generated_at: datetime,
+        reasoning_content: str | None = None,
     ) -> datetime:
         if not self._enabled or self._db is None:
             return generated_at
 
         try:
-            await self._db.defense_questions.insert_one({
+            doc = {
                 "session_id": payload.session_id,
                 "student_id": payload.student_id,
                 "round_index": payload.round_index,
@@ -166,8 +167,10 @@ class YandaojiePersistenceService:
                 "model": model,
                 "prompt": prompt,
                 "question": question,
+                "reasoning_content": reasoning_content,
                 "created_at": generated_at,
-            })
+            }
+            await self._db.defense_questions.insert_one(doc)
         except Exception as exc:
             raise YandaojiePersistenceError(
                 "Failed to persist Yandaojie defense question to MongoDB"

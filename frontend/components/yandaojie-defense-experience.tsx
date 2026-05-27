@@ -639,9 +639,6 @@ export default function YandaojieDefenseExperience({
             <h2 className="mt-2 text-3xl font-bold">恭喜你！</h2>
             <p className="mt-3 text-[#5F5D57]">
               你已完成「{activeSubject.label} · {activeSubject.topic}」的知识保卫。
-              {persistenceEnabled === false
-                ? "但数据暂时无法保存。"
-                : "你的答辩记录已保存。"}
             </p>
           </section>
         ) : null}

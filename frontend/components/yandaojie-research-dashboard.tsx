@@ -363,6 +363,16 @@ export default function YandaojieResearchDashboard(): JSX.Element {
                         <article key={idx} className="rounded-2xl bg-[#F6F1E8] p-4">
                           <p className="font-semibold">第 {((q.round_index as number) ?? 0) + 1} 轮</p>
                           <p className="mt-2 text-sm leading-6 text-[#5F5D57]">{q.question as string}</p>
+                          {(q.reasoning_content as string) ? (
+                            <details className="mt-3">
+                              <summary className="cursor-pointer text-xs font-semibold text-[#8A5E2A] hover:underline">
+                                查看AI思维过程
+                              </summary>
+                              <p className="mt-2 whitespace-pre-wrap rounded-xl bg-white p-3 text-xs leading-5 text-[#5F5D57]">
+                                {q.reasoning_content as string}
+                              </p>
+                            </details>
+                          ) : null}
                           <p className="mt-2 text-xs text-[#6B665E]">
                             {(q.model as string) ?? "unknown"} · {formatDateTime(q.generated_at as string)}
                           </p>

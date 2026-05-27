@@ -29,6 +29,7 @@ class YandaojieGeneratedQuestion:
     question: str
     generated_at: datetime
     prompt: str
+    reasoning_content: str | None = None
 
 
 class YandaojieDefenseService:
@@ -69,6 +70,8 @@ class YandaojieDefenseService:
                 {"role": "user", "content": user_prompt},
             ],
             "response_format": {"type": "json_object"},
+            "thinking": {"type": "enabled"},
+            "reasoning_effort": "high",
             "temperature": 0.7,
             "stream": False,
         }
@@ -83,6 +86,7 @@ class YandaojieDefenseService:
             response.raise_for_status()
             data = response.json()
             content = self._extract_content(data)
+            reasoning_content = self._extract_reasoning_content(data)
             question = self._parse_question(content)
         except YandaojieDefenseServiceError:
             raise
@@ -97,6 +101,7 @@ class YandaojieDefenseService:
             question=question,
             generated_at=datetime.now(timezone.utc),
             prompt=user_prompt,
+            reasoning_content=reasoning_content,
         )
 
     def _build_messages(
@@ -123,6 +128,8 @@ class YandaojieDefenseService:
             - 不要重复之前的问题。
             - 让新问题明确地承接上一轮的回答。
             - 你的问题必须直接引用或回应学生在上一轮说过的某个具体内容。如果学生未提供有意义的回答，要求学生展开说明，而不是引入新的知识点。
+            - 必须提出开放式问题（如"为什么""怎么""请解释"），不要问是非题或选择题。
+            - 你的追问必须直接考察教学目标中明确提到的知识或能力，不要偏离到与教学目标无直接关系的泛泛话题讨论。
         """).strip()
 
         objectives = "\n".join(
@@ -186,6 +193,17 @@ class YandaojieDefenseService:
                 "DeepSeek response had empty content"
             )
         return content.strip()
+
+    def _extract_reasoning_content(self, data: dict[str, Any]) -> str | None:
+        """Extract the reasoning_content (chain-of-thought) from DeepSeek response, if present."""
+        choices = data.get("choices", [])
+        if not choices:
+            return None
+        message = choices[0].get("message", {})
+        reasoning = message.get("reasoning_content")
+        if isinstance(reasoning, str) and reasoning.strip():
+            return reasoning.strip()
+        return None
 
     def _parse_question(self, content: str) -> str:
         try:
