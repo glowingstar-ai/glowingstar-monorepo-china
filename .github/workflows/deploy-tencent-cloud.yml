@@ -1,0 +1,47 @@
+name: Deploy to Tencent Cloud
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "deploy/**"
+      - "docker-compose.yml"
+      - ".github/workflows/deploy-tencent-cloud.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync code to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.TC_HOST }}
+          username: ubuntu
+          key: ${{ secrets.TC_SSH_KEY }}
+          source: "backend/,frontend/,deploy/,docker-compose.yml"
+          target: /home/ubuntu/app
+          overwrite: true
+          strip_components: 0
+
+      - name: Rebuild and restart
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.TC_HOST }}
+          username: ubuntu
+          key: ${{ secrets.TC_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            cd /home/ubuntu/app
+            sudo docker compose up -d --build --remove-orphans
+            sudo docker image prune -f

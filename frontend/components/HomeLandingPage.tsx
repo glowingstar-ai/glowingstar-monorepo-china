@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { teamLogoList } from "@/lib/site-content";
 
-const CONTACT_EMAIL = "chenyu@glowingstar.ai";
+const CONTACT_EMAIL = "1141599642@qq.com";
 const CONTACT_HREF = `mailto:${CONTACT_EMAIL}`;
 
 const paperTextureSvg = `
@@ -72,7 +72,7 @@ const paperTextureDataUri = `url("data:image/svg+xml,${encodeURIComponent(
 export const homeMetadata: Metadata = {
   title: "GlowingStar",
   description:
-    "AI-native workflow systems in private alpha, delivered one-on-one with partners.",
+    "AI原生工作流系统，私有内测中，与合作伙伴一对一交付。",
 };
 
 export default function HomeLandingPage(): JSX.Element {
@@ -110,32 +110,30 @@ export default function HomeLandingPage(): JSX.Element {
                 className="h-10 w-10 object-contain drop-shadow-[0_4px_12px_rgba(235,179,43,0.18)]"
               />
               <p className="font-heading text-xs uppercase tracking-[0.34em] text-[#17120f]/45">
-                AI-Native Workflows
+                AI原生工作流
               </p>
             </div>
             <h1 className="mt-5 max-w-3xl font-heading text-4xl leading-tight sm:text-5xl">
-              Contact us
+              联系我们
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#17120f]/72 sm:text-xl sm:leading-9">
-              GlowingStar builds AI-native workflow systems. We are currently
-              in private alpha and work with each team one-on-one to deliver
-              the best results.
+              GlowingStar 构建AI原生工作流系统。目前处于私有内测阶段，与每个团队进行一对一合作，交付最佳成果。
             </p>
             <p className="mt-4 max-w-3xl text-base leading-8 text-[#17120f]/68 sm:text-[1.05rem]">
-              If you&rsquo;re interested in working with us, email{" "}
+              如果您有兴趣与我们合作，请发送邮件至{" "}
               <a
                 href={CONTACT_HREF}
                 className="font-medium text-[#17120f] underline decoration-[#17120f]/30 underline-offset-4"
               >
                 {CONTACT_EMAIL}
               </a>
-              .
+              。
             </p>
           </section>
 
           <section className="rounded-[2rem] border border-[#17120f]/12 bg-[linear-gradient(180deg,rgba(252,247,239,0.86),rgba(245,237,225,0.92))] px-6 py-8 shadow-[0_20px_60px_rgba(93,66,35,0.08)] sm:px-8">
             <p className="text-xs uppercase tracking-[0.34em] text-[#17120f]/58">
-              Team From
+              团队来自
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {teamLogoList.map((logo) => (
