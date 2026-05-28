@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from dataclasses import dataclass
@@ -14,6 +15,9 @@ import httpx
 from app.schemas.yandaojie import YandaojieDefenseQuestionRequest
 
 logger = logging.getLogger(__name__)
+
+_MAX_RETRIES = 1
+_RETRY_BACKOFF_SECONDS = 2.0
 
 
 class YandaojieDefenseServiceError(RuntimeError):
@@ -42,7 +46,7 @@ class YandaojieDefenseService:
         api_key: str | None,
         base_url: str = "https://api.deepseek.com",
         model: str = "deepseek-v4-pro",
-        timeout: float = 60.0,
+        timeout: float = 180.0,
     ) -> None:
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
@@ -78,14 +82,7 @@ class YandaojieDefenseService:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    f"{self.base_url}/chat/completions",
-                    headers=headers,
-                    json=body,
-                )
-            response.raise_for_status()
-            data = response.json()
+            data = await self._call_deepseek_with_retry(headers, body)
             content = self._extract_content(data)
             reasoning_content = self._extract_reasoning_content(data)
             question, targeted_objectives, diagnoses = self._parse_question(content)
@@ -106,6 +103,39 @@ class YandaojieDefenseService:
             targeted_objectives=targeted_objectives,
             diagnoses=diagnoses,
         )
+
+    async def _call_deepseek_with_retry(
+        self, headers: dict[str, str], body: dict[str, Any]
+    ) -> dict[str, Any]:
+        """POST to DeepSeek with one retry on timeout."""
+        last_exc: httpx.ReadTimeout | None = None
+        for attempt in range(_MAX_RETRIES + 1):
+            try:
+                async with httpx.AsyncClient(timeout=self.timeout) as client:
+                    response = await client.post(
+                        f"{self.base_url}/chat/completions",
+                        headers=headers,
+                        json=body,
+                    )
+                response.raise_for_status()
+                return response.json()
+            except httpx.ReadTimeout as exc:
+                last_exc = exc
+                if attempt < _MAX_RETRIES:
+                    backoff = _RETRY_BACKOFF_SECONDS * (attempt + 1)
+                    logger.warning(
+                        "DeepSeek ReadTimeout (attempt %d/%d), retrying in %.1fs",
+                        attempt + 1,
+                        _MAX_RETRIES + 1,
+                        backoff,
+                    )
+                    await asyncio.sleep(backoff)
+                else:
+                    logger.error(
+                        "DeepSeek ReadTimeout after %d attempts", _MAX_RETRIES + 1
+                    )
+        assert last_exc is not None
+        raise last_exc
 
     def _build_messages(
         self, payload: YandaojieDefenseQuestionRequest

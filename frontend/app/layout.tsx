@@ -39,6 +39,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <footer className="w-full py-3 text-center text-xs text-muted-foreground/50">
+            v0.0.1
+          </footer>
         </ThemeProvider>
       </body>
     </html>
