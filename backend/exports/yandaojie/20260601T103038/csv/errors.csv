@@ -1,0 +1,2 @@
+﻿error_id,session_id,student_id,stage,error_scope,error_message,raw_error,round_index,metadata,recorded_at
+6dac77fbbf484df79e75b3fbe3304262,3248137b38e14cedb73c94809fcb70ab,test,defense_question,backend,Unable to generate a Yandaojie defense question,YandaojieDefenseServiceError('Unable to generate a Yandaojie defense question'),0,"{""subject_id"": ""math"", ""subject_topic"": ""《可爱的小猫》""}",2026-05-27T09:43:21.843000

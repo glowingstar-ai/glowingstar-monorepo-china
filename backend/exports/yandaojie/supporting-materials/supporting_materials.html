@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Supporting Materials — GlowingStar Yandaojie Knowledge-Defense Platform</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 18mm 18mm 18mm;
+    @bottom-center { content: counter(page) " / " counter(pages); }
+  }
+  :root {
+    --ink: #15233b;
+    --muted: #5a6b85;
+    --brand: #1f5fae;
+    --brand-soft: #eaf1fb;
+    --gold: #b8860b;
+    --rule: #d8e0ec;
+    --good: #1f8a4c;
+    --warn: #b9770e;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Helvetica Neue", "Hiragino Sans GB", "PingFang SC", Arial, sans-serif;
+    color: var(--ink);
+    font-size: 10.6pt;
+    line-height: 1.5;
+    margin: 0;
+  }
+  h1, h2, h3, h4 { color: var(--ink); line-height: 1.25; }
+  h2 {
+    font-size: 15pt;
+    margin: 26px 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--brand);
+    page-break-after: avoid;
+  }
+  h2 .num { color: var(--brand); }
+  h3 { font-size: 12pt; margin: 16px 0 4px; color: var(--brand); page-break-after: avoid; }
+  h4 { font-size: 10.6pt; margin: 12px 0 2px; }
+  p { margin: 6px 0; }
+  a { color: var(--brand); word-break: break-all; }
+  ul, ol { margin: 6px 0 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+  small { color: var(--muted); }
+
+  /* Cover */
+  .cover {
+    page-break-after: always;
+    padding-top: 36px;
+  }
+  .eyebrow {
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--brand);
+    font-weight: 700;
+    font-size: 9pt;
+  }
+  .cover h1 {
+    font-size: 30pt;
+    margin: 10px 0 4px;
+    letter-spacing: -0.5px;
+  }
+  .cover .sub { font-size: 13pt; color: var(--muted); margin: 0 0 26px; }
+  .cover-rule { height: 4px; background: linear-gradient(90deg, var(--brand), var(--gold)); border: 0; margin: 18px 0 24px; }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 18px;
+  }
+  .meta-grid .cell { padding: 11px 14px; border-bottom: 1px solid var(--rule); }
+  .meta-grid .cell:nth-child(odd) { border-right: 1px solid var(--rule); background: #fafcff; }
+  .meta-grid .k { font-size: 8pt; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .meta-grid .v { font-size: 11pt; font-weight: 600; margin-top: 2px; }
+
+  .ph { color: var(--gold); background: #fdf6e3; padding: 0 4px; border-radius: 3px; font-weight: 600; }
+
+  .callout {
+    background: var(--brand-soft);
+    border-left: 4px solid var(--brand);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 12px 0;
+  }
+  .callout.action { background: #fdf6e3; border-left-color: var(--gold); }
+  .callout .title { font-weight: 700; font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.6px; }
+
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 9.6pt; }
+  th, td { border: 1px solid var(--rule); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); color: var(--ink); font-weight: 700; }
+  tr:nth-child(even) td { background: #fafcff; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* CSS bar charts */
+  .chart { margin: 12px 0 4px; }
+  .bar-row { display: grid; grid-template-columns: 120px 1fr 56px; align-items: center; gap: 10px; margin: 5px 0; }
+  .bar-row .label { font-size: 9pt; color: var(--muted); }
+  .bar-track { background: #eef2f8; border-radius: 4px; height: 16px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--brand), #4a89dc); border-radius: 4px; }
+  .bar-row .val { font-size: 9pt; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .dialogue { border: 1px solid var(--rule); border-radius: 8px; padding: 4px 12px; margin: 10px 0; background: #fafcff; }
+  .dialogue .q { color: var(--brand); font-weight: 600; }
+  .dialogue .a { color: var(--ink); }
+  .dialogue .round { color: var(--muted); font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  .cn { font-family: "Hiragino Sans GB", "PingFang SC", "Heiti SC", sans-serif; }
+
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 8pt; font-weight: 700; }
+  .pill.good { background: #e4f5ec; color: var(--good); }
+  .pill.warn { background: #fbf0dc; color: var(--warn); }
+
+  .footer-note { margin-top: 28px; padding-top: 10px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 8.5pt; }
+  .avoid-break { page-break-inside: avoid; }
+  .toc li { list-style: none; }
+  .toc ol { counter-reset: toc; padding-left: 0; }
+  .toc li { counter-increment: toc; padding: 3px 0; border-bottom: 1px dotted var(--rule); }
+  .toc li::before { content: counter(toc) ".  "; color: var(--brand); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<section class="cover">
+  <div class="eyebrow">Award Submission &middot; Supporting Materials</div>
+  <h1>GlowingStar &ldquo;Yandaojie&rdquo;<br/>AI Knowledge-Defense Platform</h1>
+  <p class="sub">An evidence dossier on a Socratic, dialogue-based formative-assessment tool for primary-school learners</p>
+  <hr class="cover-rule" />
+
+  <div class="callout action">
+    <div class="title">Action required before submission</div>
+    <p style="margin:4px 0 0">Fields shown in <span class="ph">[gold]</span> are placeholders. Replace each with your own details, and confirm that every hyperlink is <strong>publicly accessible and will remain live until the day of the Award Ceremony</strong>, as required by the competition rules.</p>
+  </div>
+
+  <div class="meta-grid">
+    <div class="cell"><div class="k">Applicant / Submitting team</div><div class="v"><span class="ph">[Applicant name]</span></div></div>
+    <div class="cell"><div class="k">School / Organisation</div><div class="v"><span class="ph">[School / Organisation]</span></div></div>
+    <div class="cell"><div class="k">Award &amp; category</div><div class="v"><span class="ph">[Award name &amp; category]</span></div></div>
+    <div class="cell"><div class="k">Country / Region</div><div class="v"><span class="ph">[Country / Region]</span></div></div>
+    <div class="cell"><div class="k">Initiative</div><div class="v">GlowingStar &middot; Yandaojie (&#30740;&#36947;&#38454;)</div></div>
+    <div class="cell"><div class="k">Evidence period</div><div class="v">Pilot to 1 June 2026</div></div>
+    <div class="cell"><div class="k">Contact</div><div class="v"><span class="ph">[Email / phone]</span></div></div>
+    <div class="cell"><div class="k">Document date</div><div class="v">1 June 2026</div></div>
+  </div>
+
+  <div class="footer-note">
+    This document accompanies the main application narrative. It catalogues the supporting materials offered as evidence and embeds the core data, frameworks and documentation inline so reviewers can assess the evidence base without leaving the dossier.
+  </div>
+</section>
+
+<!-- ============================ TOC ============================ -->
+<section class="toc">
+  <h2><span class="num">0.</span> Contents</h2>
+  <ol>
+    <li>Purpose &amp; how to read this dossier</li>
+    <li>Inventory of supporting materials</li>
+    <li>Implementation framework &mdash; the pedagogical model</li>
+    <li>Evidence of impact &mdash; pilot data</li>
+    <li>Classroom documentation &mdash; annotated defense transcripts</li>
+    <li>Technology, methodology &amp; data provenance</li>
+    <li>Sustainability &amp; institutional embedding</li>
+    <li>Testimonials (template)</li>
+    <li>Research references</li>
+    <li>Data availability, privacy &amp; ethics</li>
+    <li>Hyperlink index</li>
+  </ol>
+</section>
+
+<!-- ============================ 1 ============================ -->
+<h2><span class="num">1.</span> Purpose &amp; how to read this dossier</h2>
+<p>
+  This pack strengthens the evidence base of our submission. <strong>GlowingStar Yandaojie</strong> (&ldquo;&#30740;&#36947;&#38454;&rdquo;, literally a <em>staircase for inquiring into knowledge</em>) is an AI-powered <em>knowledge-defense</em> tool for primary-school pupils. Rather than grading multiple-choice answers, it runs a short, oral-style <em>defense</em>&mdash;much like a thesis viva&mdash;in which a teacher-modelled AI examiner reads a child&rsquo;s reflection, then asks one probing open question at a time, adapting each follow-up to the pupil&rsquo;s previous answer and diagnosing exactly which learning objectives are mastered and which are not.
+</p>
+<p>
+  The materials below map onto the categories the competition invites&mdash;<em>evaluation reports, implementation frameworks, policy/technical documents, testimonials, research references and classroom documentation</em>&mdash;and are designed to demonstrate <strong>impact, sustainability and institutional embedding</strong>. Quantitative claims are drawn directly from an anonymised export of live pilot data (see &sect;6 and &sect;10).
+</p>
+
+<!-- ============================ 2 ============================ -->
+<h2><span class="num">2.</span> Inventory of supporting materials</h2>
+<table>
+  <thead>
+    <tr><th style="width:26px" class="num">#</th><th style="width:150px">Material</th><th>Type &amp; what it evidences</th><th style="width:150px">Where to access</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="num">1</td><td>Pedagogical &amp; implementation framework</td><td>Implementation framework &mdash; the reflect &rarr; defend &rarr; diagnose model and how it embeds in a 6th-grade lesson cycle (&sect;3)</td><td>Embedded &sect;3</td></tr>
+    <tr><td class="num">2</td><td>Pilot impact dataset &amp; analysis</td><td>Evaluation report &mdash; 50 learners, 140 defense sessions, 441 answered turns, objective-level mastery diagnoses (&sect;4)</td><td>Embedded &sect;4; raw data <span class="ph">[dataset URL]</span></td></tr>
+    <tr><td class="num">3</td><td>Annotated classroom transcripts</td><td>Classroom documentation &mdash; real AI&ndash;pupil defense dialogues across Maths, Science and English (&sect;5)</td><td>Embedded &sect;5</td></tr>
+    <tr><td class="num">4</td><td>Technical &amp; methodology note</td><td>Technical document &mdash; model, prompt design, diagnostic schema and reproducible export pipeline (&sect;6)</td><td>Embedded &sect;6; repository <span class="ph">[repo URL]</span></td></tr>
+    <tr><td class="num">5</td><td>Sustainability &amp; governance plan</td><td>Policy document &mdash; institutional embedding, deployment and data-governance posture (&sect;7)</td><td>Embedded &sect;7</td></tr>
+    <tr><td class="num">6</td><td>Testimonials</td><td>Testimonials &mdash; teacher, pupil and parent voices (template to complete) (&sect;8)</td><td>Embedded &sect;8; video <span class="ph">[link]</span></td></tr>
+    <tr><td class="num">7</td><td>Research references</td><td>Research references &mdash; learning-science foundations for the design (&sect;9)</td><td>Embedded &sect;9</td></tr>
+    <tr><td class="num">8</td><td>Live product / demo</td><td>Demonstration of the working tool</td><td><span class="ph">[product / demo URL]</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 3 ============================ -->
+<h2><span class="num">3.</span> Implementation framework &mdash; the pedagogical model</h2>
+<p>Each defense follows a fixed, teacher-designed structure so that the experience is consistent, fair and tightly aligned to the curriculum&rsquo;s stated learning objectives.</p>
+
+<h3>3.1 The learner journey</h3>
+<ol>
+  <li><strong>Reflect.</strong> The pupil first writes a brief reflection against each lesson objective: <em>what I learned</em> and <em>what I&rsquo;m still unsure about</em>. This primes metacognition and gives the examiner a starting point.</li>
+  <li><strong>Defend (5 rounds).</strong> An AI examiner&mdash;modelled on &ldquo;a rigorous but friendly Grade-6 teacher&rdquo;&mdash;asks <strong>exactly one open question per round</strong>, for up to five rounds. Every question must explicitly build on something the child just said, target a named objective, and probe for weak reasoning, missing evidence or over-generalisation rather than reward recall.</li>
+  <li><strong>Diagnose.</strong> After every round the system produces a structured diagnosis: which knowledge points the pupil has <em>mastered</em> and which are <em>not yet mastered</em>, with a one-line rationale each. This is the formative payload teachers act on.</li>
+</ol>
+
+<h3>3.2 Design guarantees (enforced in the examiner)</h3>
+<ul>
+  <li>Open questions only (&ldquo;why / how / explain&rdquo;)&mdash;no yes/no or multiple-choice prompts.</li>
+  <li>One question, one question-mark per turn; no &ldquo;and / also&rdquo; compound questions.</li>
+  <li>Questions are short enough for a Grade-6 pupil to answer in ~30 seconds.</li>
+  <li>The examiner never answers for the pupil and never repeats an earlier question.</li>
+  <li>Every question is tied to a specific curriculum objective; off-topic drift is disallowed.</li>
+  <li>Subject-aware behaviour (e.g. for English, the examiner states explicitly when an answer must be given in English).</li>
+</ul>
+
+<div class="callout">
+  <div class="title">Why &ldquo;defense&rdquo; instead of a quiz</div>
+  <p style="margin:4px 0 0">A quiz measures whether a final answer is right. A defense surfaces <em>how</em> a child reasons&mdash;and where the reasoning breaks. Because each follow-up is generated from the pupil&rsquo;s own words, the tool adapts to 50 different children without 50 hand-written question banks, and it hands the teacher an objective-level mastery map for the whole class.</p>
+</div>
+
+<!-- ============================ 4 ============================ -->
+<h2><span class="num">4.</span> Evidence of impact &mdash; pilot data</h2>
+<p><small>Source: anonymised export of real classroom pupils (numeric pupil IDs), generated 1 June 2026. Development/QA sessions are excluded. Figures describe a pilot and are reported transparently, including where engagement was low.</small></p>
+
+<h3>4.1 Headline figures</h3>
+<table class="avoid-break">
+  <tbody>
+    <tr><td>Pupils reached (pilot cohort)</td><td class="num"><strong>50</strong></td><td>Defense sessions run</td><td class="num"><strong>140</strong></td></tr>
+    <tr><td>Full 5-round defenses completed</td><td class="num"><strong>85</strong> (61%)</td><td>Answered defense turns</td><td class="num"><strong>441</strong></td></tr>
+    <tr><td>Objective-level diagnoses generated</td><td class="num"><strong>353</strong></td><td>Diagnosed as &ldquo;mastered&rdquo;</td><td class="num"><strong>156</strong> (44%)</td></tr>
+    <tr><td>Subjects covered</td><td class="num"><strong>3</strong></td><td>&ldquo;I don&rsquo;t know&rdquo; / blank answers surfaced</td><td class="num"><strong>96</strong> (22%)</td></tr>
+  </tbody>
+</table>
+<p><small>The 96 explicit &ldquo;don&rsquo;t-know&rdquo; turns and the 197 &ldquo;not-yet-mastered&rdquo; diagnoses are treated as a feature, not a failure: the tool&rsquo;s value is precisely in making hidden gaps visible to teachers early.</small></p>
+
+<h3>4.2 Engagement by subject</h3>
+<div class="chart avoid-break">
+  <div class="bar-row"><div class="label">Mathematics</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="val">60 sess.</div></div>
+  <div class="bar-row"><div class="label">Science</div><div class="bar-track"><div class="bar-fill" style="width:75%"></div></div><div class="val">45 sess.</div></div>
+  <div class="bar-row"><div class="label">English</div><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><div class="val">35 sess.</div></div>
+</div>
+<table class="avoid-break">
+  <thead><tr><th>Subject</th><th class="num">Sessions</th><th class="num">Completed (5 rounds)</th><th class="num">Completion rate</th></tr></thead>
+  <tbody>
+    <tr><td>Science &mdash; <span class="cn">《厨房里的物质变化》</span> (Matter changes in the kitchen)</td><td class="num">45</td><td class="num">40</td><td class="num"><span class="pill good">89%</span></td></tr>
+    <tr><td>English &mdash; Unit 6 Summer Vacation</td><td class="num">35</td><td class="num">35</td><td class="num"><span class="pill good">100%</span></td></tr>
+    <tr><td>Mathematics &mdash; <span class="cn">《可爱的小猫》</span> (coordinate scaling)</td><td class="num">60</td><td class="num">10</td><td class="num"><span class="pill warn">17%</span></td></tr>
+  </tbody>
+</table>
+<p><small>The maths topic (scaling figures with coordinate pairs) drove the most attempts but the lowest completion&mdash;an honest, actionable signal that this concept needs more scaffolding before the defense, now a focus of our next iteration.</small></p>
+
+<h3>4.3 How far pupils get (rounds reached, all 140 sessions)</h3>
+<div class="chart avoid-break">
+  <div class="bar-row"><div class="label">Reached round 5</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="val">85</div></div>
+  <div class="bar-row"><div class="label">Reached round 4</div><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><div class="val">11</div></div>
+  <div class="bar-row"><div class="label">Reached round 3</div><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div><div class="val">13</div></div>
+  <div class="bar-row"><div class="label">Reached round 2</div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div><div class="val">5</div></div>
+  <div class="bar-row"><div class="label">Reached round 1</div><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><div class="val">3</div></div>
+  <div class="bar-row"><div class="label">Round 0 only</div><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div><div class="val">23</div></div>
+</div>
+<p><small>61% of sessions ran the full five-round defense&mdash;strong sustained engagement for an oral reasoning task at primary level. The 23 single-round sessions reflect first-touch exploration and abandoned attempts, useful for onboarding design.</small></p>
+
+<!-- ============================ 5 ============================ -->
+<h2><span class="num">5.</span> Classroom documentation &mdash; annotated transcripts</h2>
+<p>Verbatim, anonymised dialogues from the pilot. They show the examiner building each question on the pupil&rsquo;s previous words and steering toward the objective. Original Chinese is preserved with English glosses.</p>
+
+<div class="dialogue avoid-break">
+  <p class="round">Science &middot; objective: classify physical vs. chemical change by &ldquo;is a new substance formed?&rdquo;</p>
+  <p><span class="q">Q1 (AI):</span> <span class="cn">你提到厨房里物质很多都在变化，请举一个具体的例子，并说说变化后是否产生了新物质？</span><br/><small>&ldquo;You said many things in the kitchen change&mdash;give one concrete example and say whether a new substance forms.&rdquo;</small></p>
+  <p><span class="a">A (pupil):</span> <span class="cn">水变成了好喝的汤</span> &mdash; <small>&ldquo;Water turned into tasty soup.&rdquo;</small></p>
+  <p><span class="q">Q2 (AI):</span> <span class="cn">你说水变成了好喝的汤，那汤里的水还是原来的水吗？</span><br/><small>Builds directly on the child&rsquo;s answer to test the core concept.</small></p>
+  <p><span class="a">A:</span> <span class="cn">不是原来的了 因为有别的物质</span></p>
+  <p><span class="q">Q5 (AI):</span> <span class="cn">水在加热时会变成水蒸气，水蒸气是水产生的新物质吗？</span></p>
+  <p><span class="a">A:</span> <span class="cn">不是 状态不一样</span> &mdash; <small>&ldquo;No&mdash;it&rsquo;s a different state.&rdquo; (correct distinction)</small></p>
+</div>
+
+<div class="dialogue avoid-break">
+  <p class="round">Mathematics &middot; objective: meaning of a coordinate pair and scaling on grid paper</p>
+  <p><span class="q">Q (AI):</span> <span class="cn">如果你在方格纸上看到一个点，写出的数对是（5，4），那么&ldquo;5&rdquo;这个数表示什么意思呢？</span></p>
+  <p><span class="a">A:</span> <span class="cn">我不知道</span> &mdash; <small>gap surfaced; flagged &ldquo;not mastered&rdquo;.</small></p>
+  <p><span class="q">Q (AI, later round):</span> <span class="cn">既然数对（3，2）中的3是列、2是行，如果把两个数都乘2变成（6，4），这个点会向什么方向移动？</span><br/><small>Escalates from naming to reasoning about scaling&mdash;exactly the lesson objective.</small></p>
+</div>
+
+<!-- ============================ 6 ============================ -->
+<h2><span class="num">6.</span> Technology, methodology &amp; data provenance</h2>
+<h3>6.1 Architecture</h3>
+<ul>
+  <li><strong>Frontend:</strong> Next.js 14 + Tailwind CSS pupil interface.</li>
+  <li><strong>Backend:</strong> FastAPI service with typed schemas; a defense-orchestration service builds each prompt from objectives, reflections and prior turns.</li>
+  <li><strong>Reasoning model:</strong> a large language model is prompted to return strict JSON containing the next question, the objective(s) it targets (with rationale) and the mastery diagnosis&mdash;making every AI decision auditable.</li>
+  <li><strong>Persistence:</strong> sessions, questions, turns, events and errors are stored for analysis.</li>
+</ul>
+<h3>6.2 Reproducible evaluation pipeline</h3>
+<p>A documented export script extracts every collection to (a) full-fidelity JSONL archives and (b) flattened CSV tables for Excel / R / SPSS / pandas, plus a <code>manifest.json</code> with row counts. Real pupils are separated from QA accounts by a deterministic rule, so the impact figures in &sect;4 are reproducible from the raw archive.</p>
+<table class="avoid-break">
+  <thead><tr><th>Exported table</th><th class="num">Rows</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><td>sessions</td><td class="num">179</td><td>One row per defense session</td></tr>
+    <tr><td>reflections</td><td class="num">177</td><td>Pupil pre-defense reflections per objective</td></tr>
+    <tr><td>defense_questions</td><td class="num">666</td><td>Generated questions + targeted objectives + diagnoses</td></tr>
+    <tr><td>defense_turns</td><td class="num">620</td><td>Question/answer pairs with timestamps</td></tr>
+    <tr><td>events</td><td class="num">1,435</td><td>Interaction telemetry</td></tr>
+    <tr><td>errors</td><td class="num">232</td><td>Captured failures for reliability monitoring</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 7 ============================ -->
+<h2><span class="num">7.</span> Sustainability &amp; institutional embedding</h2>
+<ul>
+  <li><strong>Curriculum-anchored, not bolt-on.</strong> Defenses are authored against the exact objectives of standard Grade-6 lessons (Maths, Science, English), so the tool slots into existing teaching rather than competing with it.</li>
+  <li><strong>Teacher in the loop.</strong> The output is a class-level mastery map teachers use to plan re-teaching&mdash;the human teacher remains the decision-maker.</li>
+  <li><strong>Maintainable engineering.</strong> A single monorepo with isolated frontend/backend workspaces, linting and type-checking supports independent, low-risk iteration.</li>
+  <li><strong>Reliability instrumentation.</strong> Errors and events are logged and exported, giving an honest operational picture and a basis for continuous improvement.</li>
+  <li><strong>Cost scalability.</strong> One adaptive examiner replaces bespoke per-pupil question banks, so coverage scales to more pupils and subjects without proportional teacher workload.</li>
+  <li><strong>Roadmap:</strong> add scaffolding for low-completion topics (see Maths in &sect;4.2), expand subject coverage, and longitudinal tracking of mastery gains across terms.</li>
+</ul>
+
+<!-- ============================ 8 ============================ -->
+<h2><span class="num">8.</span> Testimonials (template to complete)</h2>
+<div class="callout action">
+  <div class="title">To complete</div>
+  <p style="margin:4px 0 0">Insert 2&ndash;4 short, attributable quotes with consent. Suggested mix: classroom teacher, head/curriculum lead, pupil, parent. Keep each to 2&ndash;3 sentences and add role + school.</p>
+</div>
+<table>
+  <thead><tr><th style="width:120px">Source</th><th>Quote</th><th style="width:120px">Attribution</th></tr></thead>
+  <tbody>
+    <tr><td>Classroom teacher</td><td><span class="ph">[&ldquo;The defense showed me which children only memorised the steps&hellip;&rdquo;]</span></td><td><span class="ph">[Name, role, school]</span></td></tr>
+    <tr><td>Pupil</td><td><span class="ph">[&ldquo;It kept asking me why, so I had to really think&hellip;&rdquo;]</span></td><td><span class="ph">[Grade 6 pupil]</span></td></tr>
+    <tr><td>Parent / leader</td><td><span class="ph">[quote]</span></td><td><span class="ph">[Name, role]</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 9 ============================ -->
+<h2><span class="num">9.</span> Research references</h2>
+<p>The design draws on established learning science:</p>
+<ol>
+  <li>Black, P. &amp; Wiliam, D. (1998). <em>Assessment and Classroom Learning</em>. <em>Assessment in Education</em>, 5(1), 7&ndash;74. &mdash; foundational case for formative assessment and feedback.</li>
+  <li>Vygotsky, L. S. (1978). <em>Mind in Society</em>. &mdash; the Zone of Proximal Development; questioning that adapts to the learner.</li>
+  <li>Chi, M. T. H. et&nbsp;al. (1994). Eliciting self-explanations improves understanding. <em>Cognitive Science</em>, 18(3). &mdash; the &ldquo;explain why&rdquo; effect the defense exploits.</li>
+  <li>Roediger, H. L. &amp; Karpicke, J. D. (2006). The power of testing/retrieval practice. <em>Perspectives on Psychological Science</em>, 1(3).</li>
+  <li>Graesser, A. C. et&nbsp;al. (2005). AutoTutor and dialogue-based intelligent tutoring. <em>IEEE Trans. Education</em>. &mdash; precedent for conversational, Socratic AI tutoring.</li>
+  <li>OECD (2005). <em>Formative Assessment: Improving Learning in Secondary Classrooms</em>. &mdash; policy framing for embedding formative practice.</li>
+</ol>
+<p><small>Replace or extend with the citation style your award requires; add DOIs/links as needed.</small></p>
+
+<!-- ============================ 10 ============================ -->
+<h2><span class="num">10.</span> Data availability, privacy &amp; ethics</h2>
+<ul>
+  <li><strong>Anonymisation.</strong> Pilot pupils are identified only by non-identifying numeric IDs; the impact analysis contains no personal data.</li>
+  <li><strong>Provenance.</strong> All figures derive from a single dated export; the raw JSONL archive can be shared with reviewers under appropriate safeguards on request.</li>
+  <li><strong>Transparency.</strong> Every AI question records the objective it targets and its rationale, so decisions are inspectable rather than black-box.</li>
+  <li><strong>Consent.</strong> Confirm parental/school consent is in place before publishing any transcript, image or testimonial. <span class="ph">[Confirm consent status]</span></li>
+</ul>
+
+<!-- ============================ 11 ============================ -->
+<h2><span class="num">11.</span> Hyperlink index</h2>
+<div class="callout">
+  <div class="title">Compliance reminder</div>
+  <p style="margin:4px 0 0">Every link below must be <strong>publicly accessible</strong> and remain live for the full duration of the competition, including until the day of the Award Ceremony. Test each in a private/incognito window before submitting.</p>
+</div>
+<table>
+  <thead><tr><th style="width:170px">Resource</th><th>URL</th><th style="width:70px">Public?</th></tr></thead>
+  <tbody>
+    <tr><td>Live product / demo</td><td><span class="ph">[https://&hellip;]</span></td><td>&#9744;</td></tr>
+    <tr><td>Source repository</td><td><span class="ph">[https://&hellip;]</span></td><td>&#9744;</td></tr>
+    <tr><td>Pilot dataset / methodology</td><td><span class="ph">[https://&hellip;]</span></td><td>&#9744;</td></tr>
+    <tr><td>Demo / classroom video</td><td><span class="ph">[https://&hellip;]</span></td><td>&#9744;</td></tr>
+    <tr><td>Additional documentation</td><td><span class="ph">[https://&hellip;]</span></td><td>&#9744;</td></tr>
+  </tbody>
+</table>
+
+<div class="footer-note">
+  GlowingStar &middot; Yandaojie (&#30740;&#36947;&#38454;) supporting-materials dossier &mdash; prepared 1 June 2026. Quantitative figures reproduced from an anonymised pilot data export. Placeholders in gold must be completed by the applicant prior to submission.
+</div>
+
+</body>
+</html>

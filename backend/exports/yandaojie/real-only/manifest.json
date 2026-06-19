@@ -1,0 +1,20 @@
+{
+  "exported_at": "2026-06-01T10:59:33.218972",
+  "database": "yandaojie",
+  "real_only": true,
+  "raw_jsonl_document_counts": {
+    "sessions": 140,
+    "defense_questions": 551,
+    "defense_turns": 521,
+    "events": 1190,
+    "errors": 229
+  },
+  "csv_row_counts": {
+    "sessions.csv": 140,
+    "reflections.csv": 140,
+    "defense_questions.csv": 551,
+    "defense_turns.csv": 521,
+    "events.csv": 1190,
+    "errors.csv": 229
+  }
+}

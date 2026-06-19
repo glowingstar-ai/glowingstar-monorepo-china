@@ -1,0 +1,4 @@
+﻿session_id,student_id,round_index,subject_id,subject_label,subject_topic,model,question,targeted_objectives,mastered,not_mastered,reasoning_content,created_at
+9abb248627de4d1db94db56f181ccfcc,test,0,math,数学,《可爱的小猫》,deepseek-v4-pro,"在方格纸上，小猫乐乐的鼻尖用数对(2,3)表示，如果把横坐标和纵坐标都乘2，得到的新数对是什么？",,,,,2026-05-27T09:46:40.981000
+9abb248627de4d1db94db56f181ccfcc,test,1,math,数学,《可爱的小猫》,deepseek-v4-pro,"数对(2,3)里的2乘2后变成了多少？",,,,,2026-05-27T09:47:36.634000
+9abb248627de4d1db94db56f181ccfcc,test,2,math,数学,《可爱的小猫》,deepseek-v4-pro,"小猫乐乐的鼻尖数对(2,3)，把第一个数2乘2，会得到哪个数？",,,,,2026-05-27T09:49:00.217000
