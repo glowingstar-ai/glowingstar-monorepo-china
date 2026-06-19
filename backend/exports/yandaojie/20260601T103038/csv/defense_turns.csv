@@ -1,0 +1,3 @@
+﻿session_id,student_id,subject_id,round_index,question,answer_text,answered_at,created_at
+9abb248627de4d1db94db56f181ccfcc,test,math,0,"在方格纸上，小猫乐乐的鼻尖用数对(2,3)表示，如果把横坐标和纵坐标都乘2，得到的新数对是什么？",我不知道,2026-05-27T09:47:20.065000,2026-05-27T09:47:20.073000
+9abb248627de4d1db94db56f181ccfcc,test,math,1,"数对(2,3)里的2乘2后变成了多少？",,2026-05-27T09:48:36.641000,2026-05-27T09:48:36.645000

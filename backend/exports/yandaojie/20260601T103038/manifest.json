@@ -1,0 +1,19 @@
+{
+  "exported_at": "2026-06-01T10:30:38.421494",
+  "database": "yandaojie",
+  "raw_jsonl_document_counts": {
+    "sessions": 2,
+    "defense_questions": 3,
+    "defense_turns": 2,
+    "events": 7,
+    "errors": 1
+  },
+  "csv_row_counts": {
+    "sessions.csv": 2,
+    "reflections.csv": 2,
+    "defense_questions.csv": 3,
+    "defense_turns.csv": 2,
+    "events.csv": 7,
+    "errors.csv": 1
+  }
+}

@@ -1,0 +1,8 @@
+﻿event_id,session_id,student_id,event_type,stage,round_index,client_timestamp,recorded_at,payload
+5d78baae51f7471d8b48e57e209a1996,3248137b38e14cedb73c94809fcb70ab,test,reflection_submitted,reflection,0,2026-05-27T09:43:20.852000,2026-05-27T09:43:20.856000,{}
+be93a081f8d34f5d9240580de5904e65,9abb248627de4d1db94db56f181ccfcc,test,reflection_submitted,reflection,0,2026-05-27T09:46:31.694000,2026-05-27T09:46:31.699000,{}
+ca0087f593db4028ada783b0e2f92ff3,9abb248627de4d1db94db56f181ccfcc,test,defense_question_generated,reflection,0,2026-05-27T09:46:41.015000,2026-05-27T09:46:41.022000,"{""round_index"": 0, ""model"": ""deepseek-v4-pro""}"
+71e8913275f74d6db5171b8e592ebf5c,9abb248627de4d1db94db56f181ccfcc,test,defense_turn_submitted,defense,0,2026-05-27T09:47:20.105000,2026-05-27T09:47:20.107000,"{""round_index"": 0, ""answer_length"": 4}"
+e82d3cb2be7e4db6bab6008c65fd6e21,9abb248627de4d1db94db56f181ccfcc,test,defense_question_generated,defense,0,2026-05-27T09:47:36.637000,2026-05-27T09:47:36.639000,"{""round_index"": 1, ""model"": ""deepseek-v4-pro""}"
+ffaee6a0110a42aebb8d0a5a4759ae25,9abb248627de4d1db94db56f181ccfcc,test,defense_turn_submitted,defense,1,2026-05-27T09:48:36.647000,2026-05-27T09:48:36.652000,"{""round_index"": 1, ""answer_length"": 0}"
+c8dea02498844f4bb3b735e27eb0b2e6,9abb248627de4d1db94db56f181ccfcc,test,defense_question_generated,defense,1,2026-05-27T09:49:00.219000,2026-05-27T09:49:00.221000,"{""round_index"": 2, ""model"": ""deepseek-v4-pro""}"

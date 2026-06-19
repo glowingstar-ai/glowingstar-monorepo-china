@@ -41,3 +41,6 @@ dist/
 
 # images
 backend/captured_images
+
+# backups (may contain study/PII data)
+backend/backups/
