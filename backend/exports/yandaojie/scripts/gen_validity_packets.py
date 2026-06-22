@@ -48,6 +48,43 @@ COLS = [
 ]
 
 
+# 8 norming episodes (positions in the (subject,sid)-sorted episode list) + facilitator gold
+NORMING_POS = [5, 1, 0, 28, 14, 23, 32, 90]
+GOLD = {
+    5: ("已掌握", "扎实", "自我纠正后正确解释缩小(乘1/2不变形)与乘0边界，结论对+机制对。"),
+    1: ("已掌握", "扎实", "能反向应用 (4,6)→(2,3) 乘1/2，说明真懂“同倍数”规则。临界：未口头解释为何形状不变，但能灵活应用 → 判扎实。"),
+    0: ("已掌握", "对标签错机制", "说出“同时乘同一个数”(标签对)，但把不同倍数算成(4,9)却不识别这会变形 → 机制错。"),
+    28: ("已掌握", "对标签错机制", "(2,8)→(4,16) 算对，却解释成“向上向右2格”=平移模型，不是缩放 → 典型对标签错机制。"),
+    14: ("已掌握", "对标签错机制", "知道 (bx,by) 规则，但面对 A(1,1)→(2,2) vs B(1,3)→(2,5) 只反复说“第一个乘2第二个不是”，算不出 3→5 非×2、说不清形变。【边界教学点】他给了不完整/错的机制 → 对标签错机制；若**完全说不出任何机制**才归“空洞”。"),
+    23: ("已掌握", "空洞或猜对", "说“横竖都放大两倍”(规则对)，但问 (3,4)×2 只重复原话、答不出 (6,8) → 给不出任何机制/无法应用 → 空洞。"),
+    32: ("已掌握", "空洞或猜对", "水→水蒸气判物理、苹果变色判化学(标签对)，但每条理由都断在半句(“因为shui'bian'c”)，机制从未给出 → 空洞(亦可难判断)。"),
+    90: ("部分", "难判断", "英语：“I did homework”“4 hores”“is so diffcult”是语言产出、非概念机制；②深度构念在语言科基本不适用 → 难判断。【边界教学点】这正是为何效度增益在英语≈0：没有可暴露的独立机制。"),
+}
+SOP_ROWS = [
+    ("step", "1. 读手册", "先读「编码手册」sheet，重点记 ②辩护深度 的 5 档定义与 4 条判别规则。"),
+    ("step", "2. 对齐练习(norming)", "三位老师各自**独立**标完「对齐练习」sheet 的 8 条 → 与主持人手中的 gold key 逐条对照 → 讨论分歧（重点：对标签错机制 vs 空洞、语言科→难判断）→ 统一理解。对齐后再开始正式标注。"),
+    ("step", "3. 正式标注", "在「标注表」逐行**独立**标注 ①MC视角 ②辩护深度 ③揭示了什么(引用一句) ④信心。三位老师互不商量。"),
+    ("rule", "原则", "①只看学生说出的答案；②看整段辩护；二者**独立**。只要追问下机制站不住，就**不算“扎实”**（哪怕答案全对）。信息不足 → 难判断 + 低信心。语言科若无可辩护的机制 → 难判断。"),
+    ("rule", "节奏", "每条约 2–3 分钟；进入下一条后不回改上一条。"),
+    ("rule", "完成", "交回文件；研究者计算评分员信度(κ)。若某维度 κ<0.6，回到 norming 再对齐一轮后重标该批。"),
+]
+
+
+def build_sop(ws):
+    ws.sheet_view.showGridLines = False
+    ws.column_dimensions["A"].width = 22
+    ws.column_dimensions["B"].width = 78
+    ws.cell(1, 1, "评分流程 SOP（标注前必读）").font = Font(name=FONT, bold=True, size=16, color="1F3864")
+    r = 3
+    for kind, a, b in SOP_ROWS:
+        ws.cell(r, 1, a).font = Font(name=FONT, bold=True, size=12)
+        ws.cell(r, 2, b).font = Font(name=FONT, size=11)
+        ws.cell(r, 1).alignment = WRAP; ws.cell(r, 2).alignment = WRAP
+        fg = "E7F4E4" if kind == "step" else "FFF6D5"
+        ws.cell(r, 1).fill = PatternFill("solid", fgColor=fg); ws.cell(r, 2).fill = PatternFill("solid", fgColor=fg)
+        r += 1
+
+
 def build_episodes():
     rounds = build_rounds()
     by_sess = defaultdict(list)
@@ -166,16 +203,27 @@ def main():
     for sub, xs in bysub.items():
         for i, e in enumerate(xs):
             e["epid"] = f"{sub[0]}{i+1}"
+    norming = [eps[i] for i in NORMING_POS]
     for sub in SUBJECTS:
         sxs = bysub[sub]
         for t in TEACHERS:
             wb = Workbook()
             ws0 = wb.active; ws0.title = "编码手册"; codebook(ws0)
-            ws = wb.create_sheet("标注表")
-            write_sheet(ws, order_for(f"{sub}|{t}", sxs), t)
+            build_sop(wb.create_sheet("评分SOP"))
+            write_sheet(wb.create_sheet("对齐练习"), norming, t)   # 8 norming episodes, blank
+            write_sheet(wb.create_sheet("标注表"), order_for(f"{sub}|{t}", sxs), t)
             wb.save(str(pdir / f"packet_{sub}_{t}.xlsx"))
         print(f"{sub}: {len(sxs)} episodes × 3 teachers")
-    print(f"wrote {len(SUBJECTS)*len(TEACHERS)} validity packets to deliverables/packets_validity/")
+    # facilitator gold key for the norming 8
+    lines = ["# 对齐练习 (norming) · 主持人 Gold Key", "",
+             "三位老师各自独立标完每份包里「对齐练习」sheet 的 8 条后，用下表对照、讨论分歧，达成一致再开始正式标注。",
+             "", "| # | 序号 | 学科 | ①MC视角 | ②辩护深度 | 判定理由 / 边界教学点 |",
+             "|---|---|---|---|---|---|"]
+    for n, i in enumerate(NORMING_POS, 1):
+        e = eps[i]; mc, dep, why = GOLD[i]
+        lines.append(f"| {n} | {e['epid']} | {e['subject']} | {mc} | **{dep}** | {why} |")
+    (DELIVERABLES / "norming_goldkey.md").write_text("\n".join(lines), encoding="utf-8")
+    print(f"wrote {len(SUBJECTS)*len(TEACHERS)} packets (编码手册+评分SOP+对齐练习+标注表) + norming_goldkey.md")
 
 
 if __name__ == "__main__":
