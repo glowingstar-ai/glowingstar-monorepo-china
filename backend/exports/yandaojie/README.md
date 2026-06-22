@@ -1,6 +1,9 @@
 # 研道街 (Yandaojie) — 数据、专家评分与分析
 
-LLM「诊断→答辩」教学循环的真实课堂数据，以及面向 CHI 投稿的专家评分研究材料。
+LLM「诊断→答辩」教学循环的真实课堂数据，以及面向 CHI 投稿的研究材料。
+
+**主线（validity 研究）**：辩护式评估的「效度缺口」——答案式/选择题评分会过度给分（看似掌握、一追问露馅，尤其「对标签、错机制」），强制 AI 辩护把它暴露出来；并刻画跨学科边界（概念科有效、语言科退化）。LLM-judge 预研：过度给分 25%(CI 17–34)、对标签错机制 22%、数学/科学 35% vs 英语 6%；承重墙是用教师 panel 把核心标注 κ 从 ~0.35 做到 ≥0.6。
+**副线（over-reliance 研究，保留）**：方案 C 四阶段分步揭示，测 AI 是否带偏专家判断。
 
 ## 目录结构
 
@@ -17,7 +20,9 @@ yandaojie/
 
 | 文件 | 用途 |
 |---|---|
-| `teacher_audit_protocol.docx` | 教师评分手册（协议说明 + 研究依据） |
+| `methods_results_skeleton.docx` | **论文方法/结果章骨架（validity 主线）**：3 条 RQ、贡献、与已有工作区分、方法、占位结果（含 LLM-judge 预研数）、效度威胁 |
+| `packets_validity/packet_<学科>_T{1,2,3}.xlsx` | **辩护深度标注包（validity 主线 · 承重墙）**：每学科 3 位本学科老师全交叉标注 ①MC视角 ②辩护深度（扎实/对标签错机制/空洞或猜对/完全不懂）；含**预注册编码手册**（升 κ 的关键） |
+| `teacher_audit_protocol.docx` | 教师评分手册（over-reliance 副线，方案 C） |
 | `packets/packet_<学科>_T1/T2/T3.xlsx` | **9 份老师专属评分包**：每学科 3 位本学科老师（数学 41 / 科学 49 / 英语 50 轮）。**方案 C 四阶段分步揭示**：P1 盲评 → P2a 看AI结论后重评 → P2b 再评（推理臂看推理 / 控制臂不看，同条目跨教师配平）→ P3 评AI质量；行随机化 |
 | `assignment_key.csv` | 学科 × 每轮 × 三位老师的「臂」(推理/控制)分配（分析时回合并） |
 | `teacher_rating_workbook_v2.xlsx` | 全 551 轮的四阶段主表（参考用，非老师填写件） |
@@ -30,7 +35,9 @@ yandaojie/
 | 脚本 | 作用 |
 |---|---|
 | `yandaojie_rounds.py` | 共享模块：重建每一轮 + 确定性分层抽样（其它脚本依赖它） |
-| `packet_schema.py` | 共享模块：四阶段列结构 + 表格样式 + 使用说明（packets 与主表共用，防漂移） |
+| `gen_validity_packets.py` | **（validity 主线）** 生成 9 份辩护深度标注包 + 编码手册（106 个 episode，每学科 3 教师全交叉） |
+| `analyze_validity.py` | **（validity 主线）** 读填好的标注 → 过度给分率+CI / 分歧率 / 跨学科 / IRR(κ)；空表时回退显示 LLM-judge 预研数 |
+| `packet_schema.py` | 共享模块：四阶段列结构 + 表格样式（over-reliance 副线的 packets 与主表共用） |
 | `quality_report.py` | 数据质量统计（规模/完成度/字段完整性/错误/失败率） |
 | `build_rating_workbook_v2.py` | 生成 `deliverables/teacher_rating_workbook_v2.xlsx`（全 551 轮主表） |
 | `gen_teacher_packets.py` | 生成 9 份四阶段老师包（每学科 3 份，按臂配平）+ `assignment_key.csv` |
